@@ -10,7 +10,7 @@ Este documento sirve como hoja de ruta viva para el desarrollo. Marcar las casil
 ### 1.1. Configuración del Proyecto (Unity)
 - [x] **Repositorio y Control de Versiones**
     - [x] Inicializar repositorio Git con `.gitignore` adecuado para Unity.
-    - [x] Configurar ramas principales (`main`, `develop`).
+    - [x] **Workflow Simplificado:** Trabajar directamente en rama `main` (Solo Dev).
     - [x] Definir estructura de carpetas (Scripts, Prefabs, Art, Audio, Scenes).
 - [ ] **Definición de Pipeline de Arte (2.5D)**
     - [ ] Configurar URP (Universal Render Pipeline) con soporte para Lit Shaders.
