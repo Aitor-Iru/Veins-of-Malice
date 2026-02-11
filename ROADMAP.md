@@ -8,13 +8,14 @@ Este documento sirve como hoja de ruta viva para el desarrollo. Marcar las casil
 ## Fase 1: Pre-Producción y Configuración (Semanas 1-2)
 
 ### 1.1. Configuración del Proyecto (Unity)
-- [ ] **Repositorio y Control de Versiones**
-    - [ ] Inicializar repositorio Git con `.gitignore` adecuado para Unity.
-    - [ ] Configurar ramas principales (`main`, `develop`).
-    - [ ] Definir estructura de carpetas (Scripts, Prefabs, Art, Audio, Scenes).
-- [ ] **Definición de Pipeline de Arte**
-    - [ ] Establecer estándares de importación (Píxeles por unidad, formatos de sprites).
-    - [ ] Configurar capas de ordenación (Sorting Layers) y Tags (Player, Kenny, Ground, Wall).
+- [x] **Repositorio y Control de Versiones**
+    - [x] Inicializar repositorio Git con `.gitignore` adecuado para Unity.
+    - [x] Configurar ramas principales (`main`, `develop`).
+    - [x] Definir estructura de carpetas (Scripts, Prefabs, Art, Audio, Scenes).
+- [ ] **Definición de Pipeline de Arte (2.5D)**
+    - [ ] Configurar URP (Universal Render Pipeline) con soporte para Lit Shaders.
+    - [ ] Establecer estándares de importación para Modelos 3D (.fbx, .blend) y Materiales.
+    - [ ] Configurar Culling Masks y Layers para separar Gameplay (3D) de UI (Overlay).
 - [ ] **Prototipo de "Greybox"**
     - [ ] Crear escena de prueba con geometría básica (cubos/placeholders).
     - [ ] Implementar cámara 2D básica (Cinemachine confiner).
@@ -40,9 +41,9 @@ Este documento sirve como hoja de ruta viva para el desarrollo. Marcar las casil
     - [ ] Hitboxes y Hurtboxes: Sistema de detección de daño.
     - [ ] Ataque Básico: Combo de 3 golpes (lógica de ventana de input).
     - [ ] Bloqueo/Parry: Reducción de daño y ventana de "Parry Perfecto".
-- [ ] **Animación**
-    - [ ] Configurar Animator Controller con Blend Trees para movimiento.
-    - [ ] Implementar estados de ataque y reacción al daño (Hit Stun).
+- [ ] **Animación (Mecanim 3D)**
+    - [ ] Configurar Animator Controller para el Modelo 3D (Humanoid/Generic).
+    - [ ] Implementar estados de ataque y blending de animaciones (Idle -> Run -> Attack).
 
 ### 2.2. Sistema de Enemigos (IA Básica)
 - [ ] **Arquitectura de IA**
@@ -64,14 +65,14 @@ Este documento sirve como hoja de ruta viva para el desarrollo. Marcar las casil
 
 ## Fase 3: Producción - Vertical Slice "Barrio Deformado" (Semanas 7-12)
 
-### 3.1. Diseño de Nivel y Arte
-- [ ] **Escenario: Barrio Deformado**
-    - [ ] Importar assets finales de tileset (Suelo, Edificios, Fondo Parallax).
-    - [ ] Implementar iluminación 2D (Unity 2D Lights) para atmósfera "corrupta".
-    - [ ] Colocar plataformas y obstáculos destructibles.
-- [ ] **Arte de Personajes**
-    - [ ] Reemplazar placeholders de Kairo con sprites finales.
-    - [ ] Integrar sprites de Enemigo Grado 4 y 3.
+### 3.1. Diseño de Nivel y Arte (Estilo Clash Royale)
+- [ ] **Escenario: Barrio Deformado (3D)**
+    - [ ] Importar assets 3D optimizados (Low Poly, Toon Shader).
+    - [ ] Implementar iluminación en tiempo real (Directional Light, Point Lights para efectos mágicos).
+    - [ ] Colocar props 3D y obstáculos destructibles con físicas.
+- [ ] **Arte de Personajes (3D)**
+    - [ ] Reemplazar placeholders de Kairo con modelo 3D final y texturas PBR/Toon.
+    - [ ] Integrar modelos de Enemigo Grado 4 y 3 con Materiales Lit.
 - [ ] **VFX (Efectos Visuales)**
     - [ ] Partículas de "Esencia Maldita" al golpear.
     - [ ] Efecto de "Dash" (rastro o fantasma).
