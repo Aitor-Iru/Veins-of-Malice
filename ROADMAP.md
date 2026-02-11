@@ -13,9 +13,9 @@ Este documento sirve como hoja de ruta viva para el desarrollo. Marcar las casil
     - [x] **Workflow Simplificado:** Trabajar directamente en rama `main` (Solo Dev).
     - [x] Definir estructura de carpetas (Scripts, Prefabs, Art, Audio, Scenes).
 - [ ] **Definición de Pipeline de Arte (2.5D)**
-    - [ ] Configurar URP (Universal Render Pipeline) con soporte para Lit Shaders.
-    - [ ] Establecer estándares de importación para Modelos 3D (.fbx, .blend) y Materiales.
-    - [ ] Configurar Culling Masks y Layers para separar Gameplay (3D) de UI (Overlay).
+    - [x] Configurar URP (Universal Render Pipeline) con soporte para Lit Shaders.
+    - [x] Establecer estándares de importación para Modelos 3D (.fbx, .blend) y Materiales.
+    - [x] Configurar Culling Masks y Layers para separar Gameplay (3D) de UI (Overlay).
 - [ ] **Prototipo de "Greybox"**
     - [ ] Crear escena de prueba con geometría básica (cubos/placeholders).
     - [ ] Implementar cámara 2D básica (Cinemachine confiner).
@@ -47,6 +47,7 @@ Este documento sirve como hoja de ruta viva para el desarrollo. Marcar las casil
 
 ### 2.2. Sistema de Enemigos (IA Básica)
 - [ ] **Arquitectura de IA**
+    - [x] Definir Jerarquía de Enemigos (Grados 4 a 1) y Roles.
     - [ ] Crear clase base `Enemy` (hereda de `MonoBehaviour` o clase `Entity`).
     - [ ] Implementar Máquina de Estados Finita (FSM): Patrulla, Persecución, Ataque, Muerte.
 - [ ] **Maldición Grado 4 (Masilla)**

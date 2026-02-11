@@ -1,66 +1,68 @@
 using UnityEngine;
 using UnityEditor;
+using UnityEditor.AssetImporters;
 
-// Enforces art standards upon import
 public class AssetImportPipeline : AssetPostprocessor
 {
-    // Standard PPU for the project
-    private const int TargetPPU = 100; 
+    // Define the target shader for materials
+    private const string TargetShaderName = "Universal Render Pipeline/Lit";
 
-    void OnPreprocessTexture()
-    {
-        // Only apply to assets in the "Art" folder to avoid messing with packages or UI default resources
-        if (!assetPath.Contains("Assets/Art")) return;
-
-        TextureImporter importer = (TextureImporter)assetImporter;
-
-        // General 2D Settings
-        importer.textureType = TextureImporterType.Sprite;
-        importer.spriteImportMode = SpriteImportMode.Single; 
-        importer.spritePixelsPerUnit = TargetPPU;
-        
-        // "Stylized 2D without pixel art" -> High quality, Bilinear usually preferred over Point
-        importer.filterMode = FilterMode.Bilinear; 
-        
-        // Compression Settings (High Quality for 2D usually matters more than extreme compression)
-        TextureImporterPlatformSettings settings = new TextureImporterPlatformSettings();
-        settings.overridden = true;
-        settings.name = "Standalone";
-        settings.maxTextureSize = 2048;
-        settings.format = TextureImporterFormat.RGBA32; // Uncompressed/High Quality
-        
-        importer.SetPlatformTextureSettings(settings);
-    }
-
+    /// <summary>
+    /// Applies standard settings to Models (FBX, Blend, etc.) upon import.
+    /// </summary>
     void OnPreprocessModel()
     {
-        // Only apply to assets in the "Art" folder
-        if (!assetPath.Contains("Assets/Art")) return;
+        ModelImporter modelImporter = assetImporter as ModelImporter;
+        if (modelImporter == null) return;
 
-        ModelImporter importer = (ModelImporter)assetImporter;
+        // --- Clean up Import ---
+        // We don't want cameras or lights from Blender scenes
+        modelImporter.importCameras = false;
+        modelImporter.importLights = false;
 
-        // General Model Settings for 2.5D
-        importer.globalScale = 1.0f;
-        importer.useFileScale = true;
-        // importer.importCameras = false; // Deprecated/Removed in newer Unity versions
-        // importer.importLights = false;  // Deprecated/Removed in newer Unity versions
+        // --- Optimization ---
+        // Combine meshes where possible
+        modelImporter.optimizeMeshVertices = true; 
+        modelImporter.optimizeMeshPolygons = true;
         
-        // Mesh Settings
-        importer.meshCompression = ModelImporterMeshCompression.Medium;
-        importer.isReadable = false; // Optimize memory unless needed for scripts
-        importer.optimizeMesh = true; 
+        // Medium compression is usually a good balance for this style
+        modelImporter.meshCompression = ModelImporterMeshCompression.Medium;
 
-        // Animation Settings (Mecanim)
-        // Default to Generic for monsters/props, user can change to Humanoid manually if needed
-        importer.animationType = ModelImporterAnimationType.Generic; 
-        importer.importAnimation = true;
-        importer.avatarSetup = ModelImporterAvatarSetup.CreateFromThisModel;
+        // --- Hierarchy ---
+        // Preserving hierarchy is usually safer for rigged characters, 
+        // but for static props, we might want to enabling 'Preserve Hierarchy' only if needed.
+        // For now, let's leave it default (unchecked usually for props, checked for characters).
+        
+        // --- Animation ---
+        // If the file name contains "@", it's likely an animation clip file.
+        if (!assetPath.Contains("@"))
+        {
+            // Likely a mesh definition, ensure read/write enabled if we need to access mesh data at runtime (e.g. VFX)
+            // modelImporter.isReadable = true; // Unleash only if necessary to save memory
+        }
+    }
 
-        // Material Settings
-        // We generally want to use external materials or embedded if properly set up
-        importer.materialImportMode = ModelImporterMaterialImportMode.ImportViaMaterialDescription;
-        // importer.materialLocation = ModelImporterMaterialLocation.Embedded; // Causing errors, skipping for now
-        // importer.materialName = ModelImporterMaterialName.BasedOnMaterialName;
-        // importer.materialSearch = ModelImporterMaterialSearch.Local;
+    /// <summary>
+    /// Enforces URP Lit Material creation if materials are imported.
+    /// </summary>
+    void OnPreprocessMaterialDescription(MaterialDescription description, Material material, AnimationClip[] materialAnimation)
+    {
+        // Only affect new materials or when re-importing with "Regenerate Materials"
+        // We want to ensure it uses URP Lit
+        
+        Shader urpLit = Shader.Find(TargetShaderName);
+        if (urpLit == null)
+        {
+            Debug.LogWarning($"[AssetImportPipeline] Could not find shader '{TargetShaderName}'. Ensure URP is installed.");
+            return;
+        }
+
+        if (material.shader.name != TargetShaderName)
+        {
+            material.shader = urpLit;
+        }
+        
+        // Optional: Map textures if they follow standard naming (Albedo, Normal, etc.)
+        // This is handled by Unity's default mapper usually, but we can enforce it here if needed.
     }
 }
