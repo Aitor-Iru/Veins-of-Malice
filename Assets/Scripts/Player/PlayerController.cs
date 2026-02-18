@@ -1,156 +1,228 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/// <summary>
+/// PlayerController — Controlador de personaje 2.5D para Veins of Malice.
+/// Usa InputReader (ScriptableObject) para desacoplarse del PlayerInput.
+/// Requiere que se asigne el InputReader en el Inspector.
+/// </summary>
 [RequireComponent(typeof(Rigidbody))]
-[RequireComponent(typeof(PlayerInput))]
 public class PlayerController : MonoBehaviour
 {
+    [Header("Input")]
+    [SerializeField] private InputReader inputReader;
+
     [Header("Movement Settings")]
     [SerializeField] private float moveSpeed = 8f;
     [SerializeField] private float jumpForce = 12f;
     [SerializeField] private float dashForce = 20f;
     [SerializeField] private float dashDuration = 0.2f;
+    [SerializeField] private float dashCooldown = 1.5f;
+
+    [Header("Jump Feel")]
+    [SerializeField] private float coyoteTime = 0.15f;
+    [SerializeField] private float jumpBufferTime = 0.1f;
+    [SerializeField] private int maxJumps = 2; // 1 = solo salto normal, 2 = doble salto
 
     [Header("Ground Detection")]
-    [SerializeField] private float groundCheckDistance = 0.2f;
+    [SerializeField] private float groundCheckRadius = 0.25f;
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private Transform groundCheck;
 
-    // State
+    // ── State ─────────────────────────────────────────────────────────────────
     private Vector2 moveInput;
     private bool isGrounded;
+    private bool wasGrounded;       // Para detectar el momento de aterrizaje
     private bool isDashing;
-    private bool isJumpPressed; // Buffered jump
     private float dashTimer;
+    private float dashCooldownTimer;
+    private float coyoteTimer;
+    private float jumpBufferTimer;
+    private int jumpsRemaining;
 
-    // References
+    // ── References ────────────────────────────────────────────────────────────
     private Rigidbody rb;
     private Animator animator;
+
+    // ── Unity Lifecycle ───────────────────────────────────────────────────────
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         animator = GetComponentInChildren<Animator>();
-        
-        // Ensure Rigidbody is configured for 2.5D
+
         rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionZ;
         rb.useGravity = true;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
         rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+
+        jumpsRemaining = maxJumps;
     }
 
-    public void OnMove(InputValue value)
+    private void OnEnable()
     {
-        moveInput = value.Get<Vector2>();
-        
-        // Flip character model (visuals only)
-        if (moveInput.x != 0 && !isDashing)
+        if (inputReader == null)
         {
-            // Assuming model is child 0 or we rotate this object
-            // For 2.5D, usually rotating the model container is better
-            if (transform.childCount > 0)
-            {
-                Transform model = transform.GetChild(0);
-                float yRot = moveInput.x > 0 ? 90f : -90f; // Face right or left
-                model.localRotation = Quaternion.Euler(0, yRot, 0);
-            }
+            Debug.LogWarning("[PlayerController] InputReader not assigned! Input will not work.");
+            return;
+        }
+
+        inputReader.OnMoveEvent    += HandleMove;
+        inputReader.OnJumpStarted  += HandleJumpStarted;
+        inputReader.OnDashStarted  += HandleDashStarted;
+    }
+
+    private void OnDisable()
+    {
+        if (inputReader == null) return;
+
+        inputReader.OnMoveEvent    -= HandleMove;
+        inputReader.OnJumpStarted  -= HandleJumpStarted;
+        inputReader.OnDashStarted  -= HandleDashStarted;
+    }
+
+    // ── Input Handlers ────────────────────────────────────────────────────────
+
+    private void HandleMove(Vector2 input)
+    {
+        moveInput = input;
+
+        // Flip model based on direction
+        if (moveInput.x != 0 && !isDashing && transform.childCount > 0)
+        {
+            Transform model = transform.GetChild(0);
+            float yRot = moveInput.x > 0 ? 90f : -90f;
+            model.localRotation = Quaternion.Euler(0, yRot, 0);
         }
     }
 
-    public void OnJump(InputValue value)
+    private void HandleJumpStarted()
     {
-        if (value.isPressed && isGrounded)
-        {
-            isJumpPressed = true;
-        }
+        // Siempre activar el buffer; TryJump decide si se puede saltar
+        jumpBufferTimer = jumpBufferTime;
     }
 
-    public void OnDash(InputValue value)
+    private void HandleDashStarted()
     {
-        if (value.isPressed && !isDashing && moveInput.magnitude > 0)
-        {
+        if (!isDashing && dashCooldownTimer <= 0f && moveInput.magnitude > 0)
             StartDash();
-        }
     }
+
+    // ── Unity Loop ────────────────────────────────────────────────────────────
 
     private void Update()
     {
         HandleDashTimer();
+        HandleCooldowns();
         UpdateAnimations();
     }
 
     private void FixedUpdate()
     {
         CheckGround();
-        
-        if (!isDashing)
-        {
-            Move();
-        }
+        HandleCoyoteTime();
+        ResetJumpsOnLanding();
 
-        if (isJumpPressed)
-        {
-            Jump();
-            isJumpPressed = false;
-        }
+        if (!isDashing)
+            Move();
+
+        HandleJumpBuffer();
     }
+
+    // ── Movement ──────────────────────────────────────────────────────────────
 
     private void Move()
     {
-        // Apply velocity, keeping Y velocity for gravity
         Vector3 targetVelocity = new Vector3(moveInput.x * moveSpeed, rb.linearVelocity.y, 0);
         rb.linearVelocity = targetVelocity;
     }
 
     private void Jump()
     {
-        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, 0); // Reset vertical velocity for consistent jump height
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0, 0);
         rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        coyoteTimer     = 0f;
+        jumpBufferTimer = 0f;
+        jumpsRemaining--;
     }
 
     private void StartDash()
     {
         isDashing = true;
         dashTimer = dashDuration;
-        
-        // Dash logic (impulse)
-        Vector3 dashDir = new Vector3(moveInput.x, 0, 0).normalized;
-        if (dashDir == Vector3.zero) dashDir = transform.right; // Default forward if no input
+        dashCooldownTimer = dashCooldown;
 
+        Vector3 dashDir = new Vector3(moveInput.x, 0, 0).normalized;
+        if (dashDir == Vector3.zero) dashDir = transform.right;
         rb.linearVelocity = dashDir * dashForce;
-        // Could disable gravity during dash here if desired
     }
+
+    // ── Timers ────────────────────────────────────────────────────────────────
 
     private void HandleDashTimer()
     {
-        if (isDashing)
+        if (!isDashing) return;
+        dashTimer -= Time.deltaTime;
+        if (dashTimer <= 0f)
         {
-            dashTimer -= Time.deltaTime;
-            if (dashTimer <= 0)
-            {
-                isDashing = false;
-                rb.linearVelocity = Vector3.zero; // Stop dash momentum
-            }
+            isDashing = false;
+            rb.linearVelocity = new Vector3(moveInput.x * moveSpeed, rb.linearVelocity.y, 0);
         }
     }
 
+    private void HandleCooldowns()
+    {
+        if (dashCooldownTimer > 0f) dashCooldownTimer -= Time.deltaTime;
+        if (jumpBufferTimer   > 0f) jumpBufferTimer   -= Time.deltaTime;
+    }
+
+    private void HandleCoyoteTime()
+    {
+        coyoteTimer = isGrounded ? coyoteTime : coyoteTimer - Time.fixedDeltaTime;
+    }
+
+    private void ResetJumpsOnLanding()
+    {
+        // Resetear saltos al tocar el suelo (solo en el frame de aterrizaje)
+        if (isGrounded && !wasGrounded)
+            jumpsRemaining = maxJumps;
+        wasGrounded = isGrounded;
+    }
+
+    private void HandleJumpBuffer()
+    {
+        if (jumpBufferTimer > 0f && jumpsRemaining > 0)
+        {
+            Jump();
+        }
+    }
+
+    // ── Ground Detection ──────────────────────────────────────────────────────
+
     private void CheckGround()
     {
-        // Simple Raycast check
-        Vector3 origin = groundCheck ? groundCheck.position : transform.position;
-        isGrounded = Physics.Raycast(origin + Vector3.up * 0.1f, Vector3.down, groundCheckDistance, groundLayer);
-        
-        // Debug
-        Debug.DrawRay(origin + Vector3.up * 0.1f, Vector3.down * groundCheckDistance, isGrounded ? Color.green : Color.red);
+        Vector3 origin = groundCheck ? groundCheck.position : transform.position + Vector3.down * 0.9f;
+        isGrounded = Physics.CheckSphere(origin, groundCheckRadius, groundLayer);
     }
+
+    // ── Animations ────────────────────────────────────────────────────────────
 
     private void UpdateAnimations()
     {
         if (animator == null) return;
-
-        animator.SetFloat("Speed", Mathf.Abs(moveInput.x));
-        animator.SetBool("IsGrounded", isGrounded);
-        animator.SetBool("IsDashing", isDashing);
+        animator.SetFloat("Speed",           Mathf.Abs(moveInput.x));
+        animator.SetBool("IsGrounded",       isGrounded);
+        animator.SetBool("IsDashing",        isDashing);
         animator.SetFloat("VerticalVelocity", rb.linearVelocity.y);
+    }
+
+    // ── Gizmos ────────────────────────────────────────────────────────────────
+
+    private void OnDrawGizmosSelected()
+    {
+        if (groundCheck == null) return;
+        Gizmos.color = isGrounded ? Color.green : Color.red;
+        Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
     }
 }

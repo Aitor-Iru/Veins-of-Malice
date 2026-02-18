@@ -16,17 +16,26 @@ Este documento sirve como hoja de ruta viva para el desarrollo. Marcar las casil
     - [x] Configurar URP (Universal Render Pipeline) con soporte para Lit Shaders.
     - [x] Establecer estándares de importación para Modelos 3D (.fbx, .blend) y Materiales.
     - [x] Configurar Culling Masks y Layers para separar Gameplay (3D) de UI (Overlay).
-- [ ] **Prototipo de "Greybox"**
-    - [ ] Crear escena de prueba con geometría básica (cubos/placeholders).
-    - [ ] Implementar cámara 2D básica (Cinemachine confiner).
+- [x] **Prototipo de "Greybox"**
+    - [x] Crear escena de prueba con geometría básica (cubos/placeholders). *(GreyboxSceneBuilder.cs — Tools > Veins of Malice > Create Greybox Scene)*
+    - [x] Implementar cámara 2D básica (CameraController.cs con seguimiento suave y dead zone).
+    - [x] Dash cooldown (1.5s), Coyote Time (0.15s) y Jump Buffer (0.1s) en PlayerController.
+    - [x] PlayerHealth.cs con invulnerabilidad temporal.
 
 ### 1.2. Arquitectura del Código
-- [ ] **Game Manager**
-    - [ ] Implementar patrón Singleton para `GameManager`.
-    - [ ] Crear máquina de estados global (MainMenu, Gameplay, Pause, GameOver).
-- [ ] **Input System**
-    - [ ] Configurar Unity Input System (New).
-    - [ ] Mapear acciones: Mover, Saltar, Atacar, Dash, Interactuar, Pausa.
+- [x] **Game Manager**
+    - [x] Implementar patrón Singleton para `GameManager`.
+    - [x] Crear máquina de estados global (MainMenu, Gameplay, Pause, GameOver).
+    - [x] Eventos estáticos: `OnGameStateChanged`, `OnGamePaused`, `OnGameResumed`, `OnGameOver`.
+    - [x] Gestión de escenas: `StartGame`, `RestartGame`, `GoToMainMenu`, `QuitGame`.
+    - [x] Pausa con tecla `Escape` (toggle).
+    - [x] Integración con `PlayerHealth.OnDeath` → dispara GameOver.
+- [x] **Input System**
+    - [x] Configurar Unity Input System (New) — asset `InputSystem_Actions.inputactions`.
+    - [x] Mapear acciones: Move, Jump, Attack, Dash, Interact, Pause.
+    - [x] Bindings: Teclado (WASD/flechas, Space, Shift, Escape, E, LMB) + Gamepad.
+    - [x] `InputReader.cs` (ScriptableObject) — centraliza eventos de input, desacopla sistemas.
+    - [x] `PlayerController.cs` actualizado para usar `InputReader` (sin `PlayerInput` directo).
 
 ---
 
