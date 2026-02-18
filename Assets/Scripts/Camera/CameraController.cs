@@ -24,13 +24,30 @@ public class CameraController : MonoBehaviour
     [SerializeField] private Vector2 minBounds;
     [SerializeField] private Vector2 maxBounds;
 
+    [Header("Shake Settings")]
+    [SerializeField] private float shakeDuration = 0.2f;
+    [SerializeField] private float shakeIntensity = 0.2f;
+
     private Vector3 velocity = Vector3.zero;
+    private float currentShakeTimer = 0f;
+    private Vector3 shakeOffset = Vector3.zero;
 
     private void LateUpdate()
     {
         if (target == null) return;
 
-        Vector3 desiredPosition = target.position + offset;
+        // Handle Shake
+        if (currentShakeTimer > 0)
+        {
+            shakeOffset = Random.insideUnitSphere * shakeIntensity;
+            currentShakeTimer -= Time.deltaTime;
+        }
+        else
+        {
+            shakeOffset = Vector3.zero;
+        }
+
+        Vector3 desiredPosition = target.position + offset + shakeOffset;
 
         // Apply dead zone — only move camera if player exits dead zone
         float deltaX = desiredPosition.x - transform.position.x;
@@ -58,6 +75,14 @@ public class CameraController : MonoBehaviour
         }
 
         transform.position = smoothed;
+    }
+
+    /// <summary>
+    /// Activa una sacudida de cámara.
+    /// </summary>
+    public void Shake()
+    {
+        currentShakeTimer = shakeDuration;
     }
 
     /// <summary>

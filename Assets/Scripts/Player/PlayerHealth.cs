@@ -1,11 +1,14 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
-public class PlayerHealth : MonoBehaviour
+public class PlayerHealth : MonoBehaviour, IDamageable
 {
     [Header("Health Settings")]
     [SerializeField] private float maxHealth = 100f;
     [SerializeField] private float invulnerabilityDuration = 0.5f;
+    [SerializeField] private float blockDamageReduction = 0.7f; // 70% reducción
+
 
     public float MaxHealth => maxHealth;
     public float CurrentHealth { get; private set; }
@@ -15,11 +18,22 @@ public class PlayerHealth : MonoBehaviour
     public event Action OnDeath;
 
     private float invulnerabilityTimer;
+    private PlayerCombat playerCombat;
+    private CameraController camController;
+    private Renderer rend;
+    private Color originalColor;
+
 
     private void Awake()
     {
         CurrentHealth = maxHealth;
+        playerCombat = GetComponent<PlayerCombat>();
+        camController = Camera.main != null ? Camera.main.GetComponent<CameraController>() : null;
+        rend = GetComponentInChildren<Renderer>();
+        if (rend) originalColor = rend.material.color;
     }
+
+
 
     private void Update()
     {
@@ -31,12 +45,26 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    public void TakeDamage(float amount)
+    public void TakeDamage(float amount, Vector3 hitDirection)
     {
         if (IsInvulnerable || amount <= 0f) return;
 
+        // Reducir daño si bloquea
+        if (playerCombat != null && playerCombat.IsBlocking)
+        {
+            amount *= (1f - blockDamageReduction);
+            Debug.Log($"[PlayerHealth] Damage blocked! Reduced to {amount}");
+        }
+
         CurrentHealth = Mathf.Max(0f, CurrentHealth - amount);
         OnHealthChanged?.Invoke(CurrentHealth, maxHealth);
+
+        // Feedback de daño
+        Debug.Log($"<color=red><b>[PLAYER HIT]</b></color> Damage: {amount} | Health: {CurrentHealth}");
+        if (camController != null) camController.Shake();
+        
+        Color flashColor = (playerCombat != null && playerCombat.IsBlocking) ? new Color(1f, 0.5f, 0f) : Color.red; // Naranja si bloquea, Rojo si no
+        if (rend) StartCoroutine(DamageColorFlash(flashColor));
 
         // Trigger invulnerability frames
         IsInvulnerable = true;
@@ -48,11 +76,27 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
+
+
+
     public void Heal(float amount)
     {
         if (amount <= 0f) return;
         CurrentHealth = Mathf.Min(maxHealth, CurrentHealth + amount);
         OnHealthChanged?.Invoke(CurrentHealth, maxHealth);
+    }
+
+    private IEnumerator DamageColorFlash(Color color)
+    {
+        if (!rend) yield break;
+        rend.material.color = color;
+        yield return new WaitForSeconds(invulnerabilityDuration);
+        
+        // Al terminar el flash, volvemos al color que corresponda según el estado actual
+        if (playerCombat != null && playerCombat.IsBlocking)
+            rend.material.color = new Color(0.2f, 0.5f, 1f); // Azul de bloqueo
+        else
+            rend.material.color = originalColor;
     }
 
     private void Die()

@@ -25,13 +25,19 @@ public static class GreyboxSceneBuilder
         light.color = new Color(1f, 0.95f, 0.84f);
         dirLight.transform.rotation = Quaternion.Euler(50f, -30f, 0f);
 
-        // ── 3. Ground Layer setup ─────────────────────────────────────────
-        // Ensure "Ground" layer exists (layer 6 by default in Unity)
+        // ── 3. Layers setup ───────────────────────────────────────────────
         int groundLayer = LayerMask.NameToLayer("Ground");
         if (groundLayer == -1)
         {
-            Debug.LogWarning("[GreyboxBuilder] 'Ground' layer not found. Please add it in Project Settings > Tags and Layers. Using Default layer for now.");
+            Debug.LogWarning("[GreyboxBuilder] 'Ground' layer not found. Using Default.");
             groundLayer = 0;
+        }
+
+        int enemyLayer = LayerMask.NameToLayer("Enemy");
+        if (enemyLayer == -1)
+        {
+            Debug.LogWarning("[GreyboxBuilder] 'Enemy' layer not found. Using Default.");
+            enemyLayer = 0;
         }
 
         // ── 4. Geometry ───────────────────────────────────────────────────
@@ -49,7 +55,7 @@ public static class GreyboxSceneBuilder
         CreatePlatform("Wall_Right", new Vector3(15f, 4f, 0), new Vector3(0.5f, 10f, 1f), groundLayer, new Color(0.3f, 0.3f, 0.3f));
 
         // ── 5. Player ─────────────────────────────────────────────────────
-        GameObject player = CreatePlayer(groundLayer);
+        GameObject player = CreatePlayer(groundLayer, enemyLayer);
 
         // ── 6. Camera ─────────────────────────────────────────────────────
         GameObject camGO = new GameObject("Main Camera");
@@ -71,7 +77,11 @@ public static class GreyboxSceneBuilder
         GameObject gmGO = new GameObject("GameManager");
         gmGO.AddComponent<GameManager>();
 
-        // ── 8. Save scene ─────────────────────────────────────────────────
+        // ── 8. Training Dummies ───────────────────────────────────────────
+        CreatePassiveDummy(new Vector3(5f, 0f, 0f), enemyLayer);
+        CreateAttackingDummy(new Vector3(10f, 0f, 0f), enemyLayer);
+
+        // ── 9. Save scene ─────────────────────────────────────────────────
         string scenePath = "Assets/Scenes/GreyboxTest.unity";
         EditorSceneManager.SaveScene(scene, scenePath);
         AssetDatabase.Refresh();
@@ -108,10 +118,27 @@ public static class GreyboxSceneBuilder
         return go;
     }
 
-    private static GameObject CreatePlayer(int groundLayer)
+    private static GameObject CreatePassiveDummy(Vector3 position, int layer)
+    {
+        GameObject dummy = CreatePlatform("PassiveDummy", position, new Vector3(1f, 1.5f, 1f), layer, Color.magenta);
+        dummy.AddComponent<DummyEnemy>();
+        return dummy;
+    }
+
+    private static GameObject CreateAttackingDummy(Vector3 position, int layer)
+    {
+        GameObject dummy = CreatePlatform("AttackingDummy", position, new Vector3(1f, 1.5f, 1f), layer, Color.red);
+        dummy.AddComponent<AttackingDummy>();
+        return dummy;
+    }
+
+
+    private static GameObject CreatePlayer(int groundLayer, int enemyLayer)
     {
         // Root
         GameObject player = new GameObject("Player");
+        player.tag = "Player"; // Fundamental para que el dummy nos detecte
+        player.layer = LayerMask.NameToLayer("Default"); // Opcional: Capa Player si existiera
         player.transform.position = new Vector3(0f, 1f, 0f);
 
         // Rigidbody
@@ -147,6 +174,26 @@ public static class GreyboxSceneBuilder
         GameObject groundCheck = new GameObject("GroundCheck");
         groundCheck.transform.SetParent(player.transform);
         groundCheck.transform.localPosition = new Vector3(0f, 0.05f, 0f);
+
+        // ── Physics Material (Zero Friction) ─────────────────────────────
+        const string physMatPath = "Assets/Settings/ZeroFriction.physicMaterial";
+        PhysicsMaterial zeroFriction = AssetDatabase.LoadAssetAtPath<PhysicsMaterial>(physMatPath);
+        if (zeroFriction == null)
+        {
+            if (!AssetDatabase.IsValidFolder("Assets/Settings"))
+                AssetDatabase.CreateFolder("Assets", "Settings");
+
+            zeroFriction = new PhysicsMaterial("ZeroFriction")
+            {
+                dynamicFriction = 0f,
+                staticFriction = 0f,
+                frictionCombine = PhysicsMaterialCombine.Minimum,
+                bounceCombine = PhysicsMaterialCombine.Minimum
+            };
+            AssetDatabase.CreateAsset(zeroFriction, physMatPath);
+            AssetDatabase.SaveAssets();
+        }
+        col.sharedMaterial = zeroFriction;
 
         // ── InputReader asset (create if missing) ─────────────────────────
         const string inputReaderPath = "Assets/Input/InputReader.asset";
@@ -190,10 +237,18 @@ public static class GreyboxSceneBuilder
         soPc.FindProperty("groundLayer").intValue = 1 << groundLayer;
         soPc.ApplyModifiedProperties();
 
+        // ── PlayerCombat ──────────────────────────────────────────────────
+        PlayerCombat pCombat = player.AddComponent<PlayerCombat>();
+        SerializedObject soCombat = new SerializedObject(pCombat);
+        soCombat.FindProperty("inputReader").objectReferenceValue = inputReader;
+        soCombat.FindProperty("enemyLayer").intValue = 1 << enemyLayer;
+        soCombat.ApplyModifiedProperties();
+
         // PlayerHealth
         player.AddComponent<PlayerHealth>();
 
         return player;
     }
+
 }
 #endif

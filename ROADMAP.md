@@ -42,14 +42,14 @@ Este documento sirve como hoja de ruta viva para el desarrollo. Marcar las casil
 ## Fase 2: Core Gameplay - "Los Cimientos" (Semanas 3-6)
 
 ### 2.1. Controlador del Personaje (Kairo)
-- [ ] **Movimiento Básico**
-    - [ ] Implementar movimiento horizontal con física (Rigidbody2D).
-    - [ ] Implementar salto (y doble salto si aplica al inicio).
-    - [ ] Implementar Dash (con cooldown y consumo de energía).
-- [ ] **Sistema de Combate (Base)**
-    - [ ] Hitboxes y Hurtboxes: Sistema de detección de daño.
-    - [ ] Ataque Básico: Combo de 3 golpes (lógica de ventana de input).
-    - [ ] Bloqueo/Parry: Reducción de daño y ventana de "Parry Perfecto".
+- [x] **Movimiento Básico**
+    - [x] Implementar movimiento horizontal con física (Rigidbody).
+    - [x] Implementar salto y doble salto (jumpsRemaining logic).
+    - [x] Implementar Dash (con cooldown y duración).
+- [x] **Sistema de Combate (Base)**
+    - [x] Hitboxes y Hurtboxes: Detección via OverlapSphere e interfaz IDamageable.
+    - [x] Ataque Básico: Combo de 3 golpes (lógica de ventana de input).
+    - [x] Bloqueo/Parry: Reducción de daño (70%) implementada en PlayerHealth.
 - [ ] **Animación (Mecanim 3D)**
     - [ ] Configurar Animator Controller para el Modelo 3D (Humanoid/Generic).
     - [ ] Implementar estados de ataque y blending de animaciones (Idle -> Run -> Attack).

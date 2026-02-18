@@ -33,7 +33,6 @@ public class PlayerController : MonoBehaviour
     // ── State ─────────────────────────────────────────────────────────────────
     private Vector2 moveInput;
     private bool isGrounded;
-    private bool wasGrounded;       // Para detectar el momento de aterrizaje
     private bool isDashing;
     private float dashTimer;
     private float dashCooldownTimer;
@@ -184,10 +183,11 @@ public class PlayerController : MonoBehaviour
 
     private void ResetJumpsOnLanding()
     {
-        // Resetear saltos al tocar el suelo (solo en el frame de aterrizaje)
-        if (isGrounded && !wasGrounded)
+        // Resetear saltos siempre que estemos en el suelo y NO estemos subiendo (para no resetear justo al saltar)
+        if (isGrounded && rb.linearVelocity.y <= 0.1f)
+        {
             jumpsRemaining = maxJumps;
-        wasGrounded = isGrounded;
+        }
     }
 
     private void HandleJumpBuffer()
@@ -202,8 +202,25 @@ public class PlayerController : MonoBehaviour
 
     private void CheckGround()
     {
-        Vector3 origin = groundCheck ? groundCheck.position : transform.position + Vector3.down * 0.9f;
-        isGrounded = Physics.CheckSphere(origin, groundCheckRadius, groundLayer);
+        // Usamos Raycasts en lugar de cajas/esferas para ser 100% precisos y evitar paredes.
+        // Tiramos 3 rayos: uno central y dos laterales ligeramente hacia adentro.
+        
+        Vector3 origin = groundCheck ? groundCheck.position : transform.position;
+        origin += Vector3.up * 0.1f; // Empezamos un poco por encima de los pies
+
+        float rayDistance = 0.2f; // El rayo baja 0.1u por debajo de los pies
+        float sideOffset = groundCheckRadius * 0.5f; // Offset lateral para los rayos laterales
+
+        bool hitCenter = Physics.Raycast(origin, Vector3.down, rayDistance, groundLayer);
+        bool hitLeft   = Physics.Raycast(origin + Vector3.left * sideOffset, Vector3.down, rayDistance, groundLayer);
+        bool hitRight  = Physics.Raycast(origin + Vector3.right * sideOffset, Vector3.down, rayDistance, groundLayer);
+
+        isGrounded = hitCenter || hitLeft || hitRight;
+
+        // Debug visual en el editor
+        Debug.DrawRay(origin, Vector3.down * rayDistance, hitCenter ? Color.green : Color.red);
+        Debug.DrawRay(origin + Vector3.left * sideOffset, Vector3.down * rayDistance, hitLeft ? Color.green : Color.red);
+        Debug.DrawRay(origin + Vector3.right * sideOffset, Vector3.down * rayDistance, hitRight ? Color.green : Color.red);
     }
 
     // ── Animations ────────────────────────────────────────────────────────────
@@ -223,6 +240,8 @@ public class PlayerController : MonoBehaviour
     {
         if (groundCheck == null) return;
         Gizmos.color = isGrounded ? Color.green : Color.red;
-        Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
+        // Dibujamos una línea simple en Gizmos para representar el área de los rayos
+        Vector3 origin = groundCheck.position;
+        Gizmos.DrawLine(origin + Vector3.left * (groundCheckRadius * 0.5f), origin + Vector3.right * (groundCheckRadius * 0.5f));
     }
 }

@@ -23,6 +23,8 @@ public class InputReader : ScriptableObject
     public event Action          OnAttackStarted;
     public event Action          OnInteractStarted;
     public event Action          OnPauseStarted;
+    public event Action          OnBlockStarted;
+    public event Action          OnBlockCanceled;
 
     // ── UI Events ─────────────────────────────────────────────────────────────
     public event Action OnUISubmit;
@@ -40,6 +42,7 @@ public class InputReader : ScriptableObject
     private InputAction _attack;
     private InputAction _interact;
     private InputAction _pause;
+    private InputAction _block;
     private InputAction _submit;
     private InputAction _cancel;
 
@@ -66,6 +69,7 @@ public class InputReader : ScriptableObject
         _attack   = _playerMap.FindAction("Attack",   throwIfNotFound: true);
         _interact = _playerMap.FindAction("Interact", throwIfNotFound: true);
         _pause    = _playerMap.FindAction("Pause",    throwIfNotFound: true);
+        _block    = _playerMap.FindAction("Block",    throwIfNotFound: true);
 
         // Bind UI actions
         _submit = _uiMap.FindAction("Submit", throwIfNotFound: true);
@@ -80,6 +84,8 @@ public class InputReader : ScriptableObject
         _attack.started  += OnAttack;
         _interact.started += OnInteract;
         _pause.started   += OnPause;
+        _block.started   += OnBlockStartedAction;
+        _block.canceled  += OnBlockCanceledAction;
         _submit.started  += OnSubmit;
         _cancel.started  += OnCancel;
 
@@ -98,6 +104,8 @@ public class InputReader : ScriptableObject
         _attack.started  -= OnAttack;
         _interact.started -= OnInteract;
         _pause.started   -= OnPause;
+        _block.started   -= OnBlockStartedAction;
+        _block.canceled  -= OnBlockCanceledAction;
         _submit.started  -= OnSubmit;
         _cancel.started  -= OnCancel;
 
@@ -152,6 +160,12 @@ public class InputReader : ScriptableObject
 
     private void OnCancel(InputAction.CallbackContext ctx)
         => OnUICancel?.Invoke();
+
+    private void OnBlockStartedAction(InputAction.CallbackContext ctx)
+        => OnBlockStarted?.Invoke();
+
+    private void OnBlockCanceledAction(InputAction.CallbackContext ctx)
+        => OnBlockCanceled?.Invoke();
 
     // ── Fallback loader (Editor only) ─────────────────────────────────────────
 
