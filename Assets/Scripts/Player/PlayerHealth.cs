@@ -62,6 +62,12 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         // Feedback de daño
         Debug.Log($"<color=red><b>[PLAYER HIT]</b></color> Damage: {amount} | Health: {CurrentHealth}");
         if (camController != null) camController.Shake();
+
+        // Spawn Damage Number
+        if (VeinsOfMalice.UI.DamageNumberManager.Instance != null)
+        {
+            VeinsOfMalice.UI.DamageNumberManager.Instance.SpawnDamageNumber(transform.position, amount, Color.red);
+        }
         
         Color flashColor = (playerCombat != null && playerCombat.IsBlocking) ? new Color(1f, 0.5f, 0f) : Color.red; // Naranja si bloquea, Rojo si no
         if (rend) StartCoroutine(DamageColorFlash(flashColor));

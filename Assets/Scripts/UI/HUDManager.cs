@@ -1,0 +1,105 @@
+using UnityEngine;
+using UnityEngine.UI;
+using System.Collections;
+
+namespace VeinsOfMalice.UI
+{
+    /// <summary>
+    /// Manages the main HUD elements: Health and Cursed Energy bars.
+    /// </summary>
+    public class HUDManager : MonoBehaviour
+    {
+        [Header("Player Settings")]
+        [SerializeField] private PlayerHealth playerHealth;
+        [SerializeField] private VeinsOfMalice.Player.PlayerEnergy playerEnergy;
+
+        [Header("Health Bar")]
+        [SerializeField] private Slider healthSlider;
+        [SerializeField] private Slider healthGhostSlider; // For that "delayed" damage effect
+        [SerializeField] private float ghostLerpSpeed = 2f;
+
+        [Header("Energy Bar")]
+        [SerializeField] private Slider energySlider;
+
+        private void Start()
+        {
+            if (playerHealth == null)
+                playerHealth = FindFirstObjectByType<PlayerHealth>();
+            
+            if (playerEnergy == null)
+                playerEnergy = FindFirstObjectByType<VeinsOfMalice.Player.PlayerEnergy>();
+
+            if (playerHealth != null)
+            {
+                playerHealth.OnHealthChanged += UpdateHealthHUD;
+                UpdateHealthHUD(playerHealth.CurrentHealth, playerHealth.MaxHealth);
+            }
+
+            if (playerEnergy != null)
+            {
+                playerEnergy.OnEnergyChanged += UpdateEnergyHUD;
+                UpdateEnergyHUD(playerEnergy.CurrentEnergyNormalized * 100f, 100f);
+            }
+            else
+            {
+                // Fallback initial values if no energy script found yet
+                if (energySlider != null)
+                {
+                    energySlider.maxValue = 100f;
+                    energySlider.value = 100f;
+                }
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (playerHealth != null)
+                playerHealth.OnHealthChanged -= UpdateHealthHUD;
+            
+            if (playerEnergy != null)
+                playerEnergy.OnEnergyChanged -= UpdateEnergyHUD;
+        }
+
+        private void UpdateHealthHUD(float current, float max)
+        {
+            if (healthSlider != null)
+            {
+                healthSlider.maxValue = max;
+                healthSlider.value = current;
+                
+                if (healthGhostSlider != null)
+                {
+                    healthGhostSlider.maxValue = max;
+                    // Ghost slider catches up in Update
+                }
+            }
+        }
+
+        private void Update()
+        {
+            // Smoothly lerp the ghost bar to catch up with actual health
+            if (healthGhostSlider != null && healthSlider != null)
+            {
+                if (healthGhostSlider.value > healthSlider.value)
+                {
+                    healthGhostSlider.value = Mathf.MoveTowards(healthGhostSlider.value, healthSlider.value, ghostLerpSpeed * Time.deltaTime * max(10f, (healthGhostSlider.value - healthSlider.value) * 5f));
+                }
+                else
+                {
+                    healthGhostSlider.value = healthSlider.value;
+                }
+            }
+        }
+
+        private float max(float a, float b) => a > b ? a : b;
+
+        private void UpdateEnergyHUD(float current, float max)
+        {
+            if (energySlider != null)
+            {
+                energySlider.maxValue = max;
+                energySlider.value = current;
+            }
+        }
+    }
+}

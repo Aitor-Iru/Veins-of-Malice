@@ -57,19 +57,19 @@ Este documento sirve como hoja de ruta viva para el desarrollo. Marcar las casil
 ### 2.2. Sistema de Enemigos (IA Básica)
 - [ ] **Arquitectura de IA**
     - [x] Definir Jerarquía de Enemigos (Grados 4 a 1) y Roles.
-    - [ ] Crear clase base `Enemy` (hereda de `MonoBehaviour` o clase `Entity`).
-    - [ ] Implementar Máquina de Estados Finita (FSM): Patrulla, Persecución, Ataque, Muerte.
+    - [x] Crear clase base `Enemy` (AIBaseController).
+    - [x] Implementar Máquina de Estados Finita (FSM): Patrulla, Persecución, Ataque.
 - [ ] **Maldición Grado 4 (Masilla)**
-    - [ ] Implementar comportamiento simple (caminar hacia el jugador, atacar en rango).
-    - [ ] Hit detection y feedback visual (parpadeo al recibir daño).
+    - [x] Implementar comportamiento simple (caminar hacia el jugador, atacar en rango).
+    - [x] Hit detection y feedback visual (parpadeo al recibir daño).
 
 ### 2.3. UI y Feedback (HUD)
-- [ ] **HUD Básico**
-    - [ ] Barra de Vida (Health Bar) con animación de pérdida de vida.
-    - [ ] Barra de Energía Maldita (Cursed Energy).
-- [ ] **Feedback de Combate**
-    - [ ] Números de daño flotantes (Floating Text).
-    - [ ] Screen Shake sutil al golpear.
+- [x] **HUD Básico**
+    - [x] Barra de Vida (Health Bar) con animación de pérdida de vida.
+    - [x] Barra de Energía Maldita (Cursed Energy).
+- [x] **Feedback de Combate**
+    - [x] Números de daño flotantes (Floating Text).
+    - [x] Screen Shake sutil al golpear.
 
 ---
 

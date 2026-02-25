@@ -14,11 +14,15 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private InputReader inputReader;
 
     [Header("Movement Settings")]
-    [SerializeField] private float moveSpeed = 8f;
     [SerializeField] private float jumpForce = 12f;
     [SerializeField] private float dashForce = 20f;
     [SerializeField] private float dashDuration = 0.2f;
     [SerializeField] private float dashCooldown = 1.5f;
+
+    [Header("Sprint Settings")]
+    [SerializeField] private float walkSpeed = 5f;
+    [SerializeField] private float runSpeed = 10f;
+    [SerializeField] private bool startsRunning = true;
 
     [Header("Jump Feel")]
     [SerializeField] private float coyoteTime = 0.15f;
@@ -33,6 +37,8 @@ public class PlayerController : MonoBehaviour
     // ── State ─────────────────────────────────────────────────────────────────
     private Vector2 moveInput;
     private bool isGrounded;
+    private bool isRunning;
+    private float currentSpeed;
     private bool isDashing;
     private float dashTimer;
     private float dashCooldownTimer;
@@ -57,6 +63,8 @@ public class PlayerController : MonoBehaviour
         rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
 
         jumpsRemaining = maxJumps;
+        isRunning = startsRunning;
+        currentSpeed = isRunning ? runSpeed : walkSpeed;
     }
 
     private void OnEnable()
@@ -70,6 +78,7 @@ public class PlayerController : MonoBehaviour
         inputReader.OnMoveEvent    += HandleMove;
         inputReader.OnJumpStarted  += HandleJumpStarted;
         inputReader.OnDashStarted  += HandleDashStarted;
+        inputReader.OnSprintStarted += HandleSprintToggle;
     }
 
     private void OnDisable()
@@ -79,6 +88,7 @@ public class PlayerController : MonoBehaviour
         inputReader.OnMoveEvent    -= HandleMove;
         inputReader.OnJumpStarted  -= HandleJumpStarted;
         inputReader.OnDashStarted  -= HandleDashStarted;
+        inputReader.OnSprintStarted -= HandleSprintToggle;
     }
 
     // ── Input Handlers ────────────────────────────────────────────────────────
@@ -108,6 +118,13 @@ public class PlayerController : MonoBehaviour
             StartDash();
     }
 
+    private void HandleSprintToggle()
+    {
+        isRunning = !isRunning;
+        currentSpeed = isRunning ? runSpeed : walkSpeed;
+        Debug.Log(isRunning ? "<color=green>[Movement]</color> Running Mode" : "<color=yellow>[Movement]</color> Walking Mode");
+    }
+
     // ── Unity Loop ────────────────────────────────────────────────────────────
 
     private void Update()
@@ -133,7 +150,7 @@ public class PlayerController : MonoBehaviour
 
     private void Move()
     {
-        Vector3 targetVelocity = new Vector3(moveInput.x * moveSpeed, rb.linearVelocity.y, 0);
+        Vector3 targetVelocity = new Vector3(moveInput.x * currentSpeed, rb.linearVelocity.y, 0);
         rb.linearVelocity = targetVelocity;
     }
 
@@ -166,7 +183,7 @@ public class PlayerController : MonoBehaviour
         if (dashTimer <= 0f)
         {
             isDashing = false;
-            rb.linearVelocity = new Vector3(moveInput.x * moveSpeed, rb.linearVelocity.y, 0);
+            rb.linearVelocity = new Vector3(moveInput.x * currentSpeed, rb.linearVelocity.y, 0);
         }
     }
 

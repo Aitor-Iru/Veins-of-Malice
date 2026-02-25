@@ -8,6 +8,7 @@ public class PlayerCombat : MonoBehaviour
 {
     [Header("Input")]
     [SerializeField] private InputReader inputReader;
+    [SerializeField] private VeinsOfMalice.Player.PlayerEnergy playerEnergy;
 
     [Header("Combo Settings")]
     [SerializeField] private float comboResetTime = 1f;
@@ -23,6 +24,9 @@ public class PlayerCombat : MonoBehaviour
     [SerializeField] private float comboStep2Damage = 15f;
     [SerializeField] private float comboStep3Damage = 25f;
 
+    [Header("Energy Costs")]
+    [SerializeField] private float attackEnergyCost = 8f; // Coste adicional por cada swing
+
     // ── State ─────────────────────────────────────────────────────────────────
     private int currentComboStep = 0;
     private float lastAttackTime;
@@ -36,6 +40,9 @@ public class PlayerCombat : MonoBehaviour
         animator = GetComponentInChildren<Animator>();
         rend = GetComponentInChildren<Renderer>();
         if (rend) originalColor = rend.material.color;
+
+        if (playerEnergy == null)
+            playerEnergy = GetComponent<VeinsOfMalice.Player.PlayerEnergy>();
     }
 
     private void OnEnable()
@@ -45,6 +52,7 @@ public class PlayerCombat : MonoBehaviour
         inputReader.OnAttackStarted += HandleAttack;
         inputReader.OnBlockStarted  += HandleBlockStarted;
         inputReader.OnBlockCanceled += HandleBlockCanceled;
+        inputReader.OnHeavyAttackStarted += HandleHeavyAttack;
     }
 
     private void OnDisable()
@@ -54,6 +62,7 @@ public class PlayerCombat : MonoBehaviour
         inputReader.OnAttackStarted -= HandleAttack;
         inputReader.OnBlockStarted  -= HandleBlockStarted;
         inputReader.OnBlockCanceled -= HandleBlockCanceled;
+        inputReader.OnHeavyAttackStarted -= HandleHeavyAttack;
     }
 
     private void Update()
@@ -73,6 +82,14 @@ public class PlayerCombat : MonoBehaviour
         if (Time.time - lastAttackTime < attackCooldown) return;
 
         Attack();
+    }
+
+    private void HandleHeavyAttack()
+    {
+        if (isBlocking) return;
+        Debug.Log("<color=magenta><b>[HEAVY ATTACK]</b></color> Cursed Energy Slash! (Prototype)");
+        // Por ahora lanzamos un ataque normal para que haga algo
+        Attack(); 
     }
 
     private void HandleBlockStarted()
@@ -109,6 +126,11 @@ public class PlayerCombat : MonoBehaviour
             animator.SetInteger("ComboStep", currentComboStep);
         }
 
+        if (playerEnergy != null && playerEnergy.IsEnergyModeActive)
+        {
+            playerEnergy.UseEnergy(attackEnergyCost);
+        }
+
         StartCoroutine(PerformAttackDetection());
     }
 
@@ -127,6 +149,13 @@ public class PlayerCombat : MonoBehaviour
             3 => comboStep3Damage,
             _ => 10f
         };
+
+        // Aplicar multiplicador si el modo Energía Maldita está activo
+        if (playerEnergy != null && playerEnergy.IsEnergyModeActive)
+        {
+            damage *= 1.25f;
+            Debug.Log($"<color=cyan>[ENERGY BOOST]</color> Damage boosted to {damage}!");
+        }
 
         foreach (var hit in hits)
         {
