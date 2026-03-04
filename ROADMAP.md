@@ -50,9 +50,9 @@ Este documento sirve como hoja de ruta viva para el desarrollo. Marcar las casil
     - [x] Hitboxes y Hurtboxes: Detección via OverlapSphere e interfaz IDamageable.
     - [x] Ataque Básico: Combo de 3 golpes (lógica de ventana de input).
     - [x] Bloqueo/Parry: Reducción de daño (70%) implementada en PlayerHealth.
-- [ ] **Animación (Mecanim 3D)**
-    - [ ] Configurar Animator Controller para el Modelo 3D (Humanoid/Generic).
-    - [ ] Implementar estados de ataque y blending de animaciones (Idle -> Run -> Attack).
+- [x] **Animación (Mecanim 3D)**
+    - [x] Configurar Animator Controller para el Modelo 3D (Humanoid/Generic).
+    - [x] Implementar estados de ataque y blending de animaciones (Idle -> Run -> Attack).
 
 ### 2.2. Sistema de Enemigos (IA Básica)
 - [ ] **Arquitectura de IA**

@@ -16,20 +16,25 @@ public class PlayerCombat : MonoBehaviour
 
     [Header("Attack Settings")]
     [SerializeField] private float attackCooldown = 0.2f;
+    [SerializeField] private float heavyAttackCooldown = 3.0f;
     [SerializeField] private float attackRange = 1.5f;
+    [SerializeField] private float heavyAttackRange = 2.0f;
     [SerializeField] private float attackDelay = 0.1f;
     [SerializeField] private Transform attackPoint;
     [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private float comboStep1Damage = 10f;
     [SerializeField] private float comboStep2Damage = 15f;
     [SerializeField] private float comboStep3Damage = 25f;
+    [SerializeField] private float heavyAttackDamage = 50f;
 
     [Header("Energy Costs")]
     [SerializeField] private float attackEnergyCost = 8f; // Coste adicional por cada swing
+    [SerializeField] private float heavyAttackEnergyCost = 40f; // Coste mucho más alto
 
     // ── State ─────────────────────────────────────────────────────────────────
     private int currentComboStep = 0;
     private float lastAttackTime;
+    private float lastHeavyAttackTime;
     private bool isBlocking;
     private Renderer rend;
     private Color originalColor;
@@ -87,9 +92,13 @@ public class PlayerCombat : MonoBehaviour
     private void HandleHeavyAttack()
     {
         if (isBlocking) return;
-        Debug.Log("<color=magenta><b>[HEAVY ATTACK]</b></color> Cursed Energy Slash! (Prototype)");
-        // Por ahora lanzamos un ataque normal para que haga algo
-        Attack(); 
+        if (Time.time - lastHeavyAttackTime < heavyAttackCooldown)
+        {
+            Debug.Log("<color=orange>[Heavy Attack] Cooldown active...</color>");
+            return;
+        }
+
+        HeavyAttack();
     }
 
     private void HandleBlockStarted()
@@ -131,24 +140,54 @@ public class PlayerCombat : MonoBehaviour
             playerEnergy.UseEnergy(attackEnergyCost);
         }
 
-        StartCoroutine(PerformAttackDetection());
+        StartCoroutine(PerformAttackDetection(false));
     }
 
-    private IEnumerator PerformAttackDetection()
+    private void HeavyAttack()
+    {
+        lastHeavyAttackTime = Time.time;
+        lastAttackTime = Time.time; // También cuenta como ataque para el combo
+        ResetCombo();
+
+        Debug.Log("<color=magenta><b>[HEAVY ATTACK]</b></color> Massive Energy Slash!");
+
+        if (animator)
+        {
+            animator.SetTrigger("HeavyAttack"); // Asumimos que existe o se añadirá
+        }
+
+        if (playerEnergy != null && playerEnergy.IsEnergyModeActive)
+        {
+            playerEnergy.UseEnergy(heavyAttackEnergyCost);
+        }
+
+        StartCoroutine(PerformAttackDetection(true));
+    }
+
+    private IEnumerator PerformAttackDetection(bool isHeavy)
     {
         // Esperar un pequeño delay para que coincida con el "impacto" visual
         yield return new WaitForSeconds(attackDelay);
 
+        float range = isHeavy ? heavyAttackRange : attackRange;
         Vector3 pos = attackPoint ? attackPoint.position : transform.position + transform.forward;
-        Collider[] hits = Physics.OverlapSphere(pos, attackRange, enemyLayer);
+        Collider[] hits = Physics.OverlapSphere(pos, range, enemyLayer);
 
-        float damage = currentComboStep switch
+        float damage;
+        if (isHeavy)
         {
-            1 => comboStep1Damage,
-            2 => comboStep2Damage,
-            3 => comboStep3Damage,
-            _ => 10f
-        };
+            damage = heavyAttackDamage;
+        }
+        else
+        {
+            damage = currentComboStep switch
+            {
+                1 => comboStep1Damage,
+                2 => comboStep2Damage,
+                3 => comboStep3Damage,
+                _ => 10f
+            };
+        }
 
         // Aplicar multiplicador si el modo Energía Maldita está activo
         if (playerEnergy != null && playerEnergy.IsEnergyModeActive)
