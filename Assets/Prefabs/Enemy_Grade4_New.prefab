@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 5427360256243425585}
   - component: {fileID: 1432204892933749700}
   - component: {fileID: 6136999252954094643}
+  - component: {fileID: -1073062292820281049}
   m_Layer: 0
   m_Name: Enemy_Grade4_New
   m_TagString: Untagged
@@ -95,7 +96,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: 6fb7b49d84597d64facfe779340a77c6, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -209,3 +210,19 @@ MonoBehaviour:
   Combat: {fileID: 0}
   Health: {fileID: 0}
   Target: {fileID: 0}
+--- !u!114 &-1073062292820281049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2971295896516001754}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 269aa51b55da51e419ae5a97be686a71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VeinsOfMalice.AI.LootSpawner
+  essencePrefab: {fileID: 2040291743451075016, guid: be1c49407f5f991458d6c2638f486834, type: 3}
+  minEssence: 1
+  maxEssence: 1
+  spawnRadius: 0.5
