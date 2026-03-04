@@ -28,6 +28,7 @@ public class InputReader : ScriptableObject
     public event Action          OnHeavyAttackStarted;
     public event Action          OnToggleEnergyStarted;
     public event Action          OnSprintStarted;
+    public event Action          OnInventoryToggleStarted;
 
     // ── UI Events ─────────────────────────────────────────────────────────────
     public event Action OnUISubmit;
@@ -49,6 +50,7 @@ public class InputReader : ScriptableObject
     private InputAction _heavyAttack;
     private InputAction _toggleEnergy;
     private InputAction _sprint;
+    private InputAction _inventory;
     private InputAction _submit;
     private InputAction _cancel;
 
@@ -76,9 +78,9 @@ public class InputReader : ScriptableObject
         _interact = _playerMap.FindAction("Interact", throwIfNotFound: true);
         _pause    = _playerMap.FindAction("Pause",    throwIfNotFound: true);
         _block    = _playerMap.FindAction("Block",    throwIfNotFound: true);
-        _heavyAttack = _playerMap.FindAction("HeavyAttack", throwIfNotFound: true);
         _toggleEnergy = _playerMap.FindAction("ToggleEnergy", throwIfNotFound: true);
         _sprint = _playerMap.FindAction("Sprint", throwIfNotFound: true);
+        _inventory = _playerMap.FindAction("Inventory", throwIfNotFound: false); // Use false to avoid crash if not added yet
 
         // Bind UI actions
         _submit = _uiMap.FindAction("Submit", throwIfNotFound: true);
@@ -95,9 +97,9 @@ public class InputReader : ScriptableObject
         _pause.started   += OnPause;
         _block.started   += OnBlockStartedAction;
         _block.canceled  += OnBlockCanceledAction;
-        _heavyAttack.started += OnHeavyAttack;
         _toggleEnergy.started += OnToggleEnergy;
         _sprint.started += OnSprint;
+        if (_inventory != null) _inventory.started += OnInventoryToggle;
         _submit.started  += OnSubmit;
         _cancel.started  += OnCancel;
 
@@ -118,9 +120,9 @@ public class InputReader : ScriptableObject
         _pause.started   -= OnPause;
         _block.started   -= OnBlockStartedAction;
         _block.canceled  -= OnBlockCanceledAction;
-        _heavyAttack.started -= OnHeavyAttack;
         _toggleEnergy.started -= OnToggleEnergy;
         _sprint.started -= OnSprint;
+        if (_inventory != null) _inventory.started -= OnInventoryToggle;
         _submit.started  -= OnSubmit;
         _cancel.started  -= OnCancel;
 
@@ -193,6 +195,9 @@ public class InputReader : ScriptableObject
 
     private void OnSprint(InputAction.CallbackContext ctx)
         => OnSprintStarted?.Invoke();
+
+    private void OnInventoryToggle(InputAction.CallbackContext ctx)
+        => OnInventoryToggleStarted?.Invoke();
 
     // ── Fallback loader (Editor only) ─────────────────────────────────────────
 

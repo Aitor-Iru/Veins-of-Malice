@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using VeinsOfMalice.Player;
 
 namespace VeinsOfMalice.UI
 {
@@ -21,6 +22,10 @@ namespace VeinsOfMalice.UI
         [Header("Energy Bar")]
         [SerializeField] private Slider energySlider;
 
+        [Header("Essence Counter")]
+        [SerializeField] private TMPro.TextMeshProUGUI essenceText;
+        [SerializeField] private PlayerInventory playerInventory;
+
         private void Start()
         {
             if (playerHealth == null)
@@ -28,6 +33,9 @@ namespace VeinsOfMalice.UI
             
             if (playerEnergy == null)
                 playerEnergy = FindFirstObjectByType<VeinsOfMalice.Player.PlayerEnergy>();
+
+            if (playerInventory == null)
+                playerInventory = FindFirstObjectByType<PlayerInventory>();
 
             if (playerHealth != null)
             {
@@ -49,6 +57,12 @@ namespace VeinsOfMalice.UI
                     energySlider.value = 100f;
                 }
             }
+
+            if (playerInventory != null)
+            {
+                playerInventory.OnEssenceChanged += UpdateEssenceHUD;
+                UpdateEssenceHUD(playerInventory.CursedEssenceCount);
+            }
         }
 
         private void OnDestroy()
@@ -58,6 +72,9 @@ namespace VeinsOfMalice.UI
             
             if (playerEnergy != null)
                 playerEnergy.OnEnergyChanged -= UpdateEnergyHUD;
+
+            if (playerInventory != null)
+                playerInventory.OnEssenceChanged -= UpdateEssenceHUD;
         }
 
         private void UpdateHealthHUD(float current, float max)
@@ -99,6 +116,14 @@ namespace VeinsOfMalice.UI
             {
                 energySlider.maxValue = max;
                 energySlider.value = current;
+            }
+        }
+
+        private void UpdateEssenceHUD(int count)
+        {
+            if (essenceText != null)
+            {
+                essenceText.text = count.ToString();
             }
         }
     }

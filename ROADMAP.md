@@ -12,7 +12,7 @@ Este documento sirve como hoja de ruta viva para el desarrollo. Marcar las casil
     - [x] Inicializar repositorio Git con `.gitignore` adecuado para Unity.
     - [x] **Workflow Simplificado:** Trabajar directamente en rama `main` (Solo Dev).
     - [x] Definir estructura de carpetas (Scripts, Prefabs, Art, Audio, Scenes).
-- [ ] **Definición de Pipeline de Arte (2.5D)**
+- [x] **Definición de Pipeline de Arte (2.5D)**
     - [x] Configurar URP (Universal Render Pipeline) con soporte para Lit Shaders.
     - [x] Establecer estándares de importación para Modelos 3D (.fbx, .blend) y Materiales.
     - [x] Configurar Culling Masks y Layers para separar Gameplay (3D) de UI (Overlay).
@@ -55,11 +55,11 @@ Este documento sirve como hoja de ruta viva para el desarrollo. Marcar las casil
     - [x] Implementar estados de ataque y blending de animaciones (Idle -> Run -> Attack).
 
 ### 2.2. Sistema de Enemigos (IA Básica)
-- [ ] **Arquitectura de IA**
+- [x] **Arquitectura de IA**
     - [x] Definir Jerarquía de Enemigos (Grados 4 a 1) y Roles.
     - [x] Crear clase base `Enemy` (AIBaseController).
     - [x] Implementar Máquina de Estados Finita (FSM): Patrulla, Persecución, Ataque.
-- [ ] **Maldición Grado 4 (Masilla)**
+- [x] **Maldición Grado 4 (Masilla)**
     - [x] Implementar comportamiento simple (caminar hacia el jugador, atacar en rango).
     - [x] Hit detection y feedback visual (parpadeo al recibir daño).
 
@@ -91,8 +91,9 @@ Este documento sirve como hoja de ruta viva para el desarrollo. Marcar las casil
 - [ ] **Sistema de Diálogo**
     - [ ] Crear sistema de cajas de texto (NPCs).
     - [ ] Integrar un NPC aliado (ej. Rion o Mentor) con diálogo ramificado simple.
-- [ ] **Progresión (Vertical Slice Scope)**
-    - [ ] Drop de "Esencia Maldita" al matar enemigos.
+- [x] **Progresión (Vertical Slice Scope)**
+    - [x] Drop de "Esencia Maldita" al matar enemigos.
+    - [x] Implementar recolección (imán de esencia).
     - [ ] Menú simple de mejora de habilidades (Mockup funcional).
 - [ ] **Puntos de Guardado**
     - [ ] Implementar "Santuarios" o puntos de control que guarden estado básico (Vida, Posición).
