@@ -36,7 +36,7 @@ namespace VeinsOfMalice.Player
             }
 
             items.Add(item);
-            Debug.Log($"<color=cyan>[Inventory]</color> Added item: {item.itemName}");
+            Debug.Log($"<color=cyan>[Inventory]</color> (ID: {GetInstanceID()}) Added item: {item.itemName}. Total items: {items.Count}");
             OnInventoryChanged?.Invoke();
             return true;
         }

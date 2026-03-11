@@ -15,6 +15,7 @@ namespace VeinsOfMalice.World
         [SerializeField] private float idleFloatAmplitude = 0.2f;
         [SerializeField] private float idleFloatSpeed = 2f;
         [SerializeField] private float collectionDelay = 2f;
+        [SerializeField] private ItemData itemData; // Optional: To show in grid slots
 
         private Transform target;
         private bool isAttracted = false;
@@ -85,9 +86,21 @@ namespace VeinsOfMalice.World
         {
             if (!canBeCollected) return;
 
-            if (target != null && target.TryGetComponent<VeinsOfMalice.Player.PlayerInventory>(out var inv))
+            if (target != null)
             {
-                inv.AddEssence(value);
+                var inv = target.GetComponentInParent<VeinsOfMalice.Player.PlayerInventory>();
+                if (inv != null)
+                {
+                    inv.AddEssence(value);
+                    if (itemData != null)
+                    {
+                        inv.AddItem(itemData);
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning("[CursedEssence] Player found but PlayerInventory component missing or not in parents!");
+                }
             }
             
             // Efecto visual o sonido aquí si se desea
@@ -96,6 +109,8 @@ namespace VeinsOfMalice.World
 
         private void OnTriggerEnter(Collider other)
         {
+            Debug.Log($"[CursedEssence] Collision with: {other.name} (Tag: {other.tag})");
+            
             if (canBeCollected && other.CompareTag("Player"))
             {
                 if (target == null) target = other.transform;

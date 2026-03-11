@@ -11,6 +11,12 @@ namespace VeinsOfMalice.Editor
         [MenuItem("Tools/Veins of Malice/Setup HUD and Feedback (The Robot)")]
         public static void SetupProjectUI()
         {
+            // 0. Clean up existing HUD if present
+            GameObject existingHUD = GameObject.Find("HUD_Canvas");
+            if (existingHUD != null) DestroyImmediate(existingHUD);
+            GameObject existingDmg = GameObject.Find("DamageNumberManager");
+            if (existingDmg != null) DestroyImmediate(existingDmg);
+
             // 1. Create Canvas
             GameObject canvasObj = new GameObject("HUD_Canvas");
             Canvas canvas = canvasObj.AddComponent<Canvas>();
@@ -213,11 +219,12 @@ namespace VeinsOfMalice.Editor
                 TextMeshProUGUI nameTxt = nameObj.GetComponent<TextMeshProUGUI>();
                 nameTxt.fontSize = 8;
                 nameTxt.alignment = TextAlignmentOptions.Center;
+                nameTxt.color = Color.white;
                 nameTxt.enableWordWrapping = false;
                 nameTxt.overflowMode = TextOverflowModes.Ellipsis;
                 RectTransform nameRect = nameObj.GetComponent<RectTransform>();
-                nameRect.anchorMin = new Vector2(0, 0);
-                nameRect.anchorMax = new Vector2(1, 0.3f);
+                nameRect.anchorMin = new Vector2(0, 0.05f);
+                nameRect.anchorMax = new Vector2(1, 0.35f);
                 nameRect.sizeDelta = Vector2.zero;
 
                 // Amount Text (Inside Slot)
@@ -226,10 +233,10 @@ namespace VeinsOfMalice.Editor
                 TextMeshProUGUI amtTxt = amtObj.GetComponent<TextMeshProUGUI>();
                 amtTxt.fontSize = 10;
                 amtTxt.alignment = TextAlignmentOptions.Right;
+                amtTxt.color = Color.yellow;
                 RectTransform amtRect = amtObj.GetComponent<RectTransform>();
-                amtRect.anchorMin = new Vector2(0.5f, 0.5f);
-                amtRect.anchorMax = new Vector2(1, 1);
-                amtRect.anchoredPosition = new Vector2(-5, -5);
+                amtRect.anchorMin = new Vector2(0.5f, 0.6f);
+                amtRect.anchorMax = new Vector2(0.95f, 0.95f);
                 amtRect.sizeDelta = Vector2.zero;
 
                 InventorySlotUI slotUI = slotObj.AddComponent<InventorySlotUI>();

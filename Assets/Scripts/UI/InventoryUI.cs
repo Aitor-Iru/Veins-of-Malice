@@ -24,24 +24,31 @@ namespace VeinsOfMalice.UI
             Debug.Log("<color=green>[InventoryUI]</color> Script Started on: " + gameObject.name);
             
             if (playerInventory == null)
-                playerInventory = FindFirstObjectByType<PlayerInventory>();
+            {
+                GameObject player = GameObject.FindGameObjectWithTag("Player");
+                if (player != null) playerInventory = player.GetComponentInParent<PlayerInventory>();
+                
+                if (playerInventory == null)
+                    playerInventory = FindFirstObjectByType<PlayerInventory>();
+            }
 
+            if (playerInventory != null)
+            {
+                Debug.Log($"<color=green>[InventoryUI]</color> Linked to PlayerInventory on {playerInventory.gameObject.name} (ID: {playerInventory.GetInstanceID()})");
+            }
+            else
+            {
+                Debug.LogError("<color=red>[InventoryUI]</color> FAILED to find any PlayerInventory in scene!");
+            }
             if (inputReader == null)
             {
                 Debug.LogWarning("<color=orange>[InventoryUI]</color> InputReader not assigned! Seeking in project or Resources...");
                 inputReader = Resources.Load<InputReader>("InputReader");
             }
 
-            // Find slots if not assigned
-            if (slots == null || slots.Length == 0)
-            {
-                slots = GetComponentsInChildren<InventorySlotUI>(true);
-                Debug.Log($"<color=green>[InventoryUI]</color> Found {slots.Length} slots in children.");
-            }
-
-            // Ensure panel starts hidden if assigned
-            if (inventoryPanel != null)
-                inventoryPanel.SetActive(false);
+            // Force refresh slots in Start
+            slots = GetComponentsInChildren<InventorySlotUI>(true);
+            Debug.Log($"<color=green>[InventoryUI]</color> Initialized with {slots.Length} slots.");
             
             UpdateUI();
         }
@@ -106,19 +113,18 @@ namespace VeinsOfMalice.UI
 
         private void UpdateUI()
         {
-            if (essenceText != null && playerInventory != null)
-            {
-                essenceText.text = "CURSED ESSENCE: " + playerInventory.CursedEssenceCount.ToString();
-            }
+            if (playerInventory == null) return;
 
-            if (playerInventory != null && slots != null)
+            Debug.Log($"<color=green>[InventoryUI]</color> Updating UI. Items in list: {playerInventory.Items.Count}");
+
+            if (slots != null)
             {
-                var items = playerInventory.Items;
+                var invItems = playerInventory.Items;
                 for (int i = 0; i < slots.Length; i++)
                 {
-                    if (i < items.Count)
+                    if (i < invItems.Count)
                     {
-                        slots[i].SetItem(items[i]);
+                        slots[i].SetItem(invItems[i]);
                     }
                     else
                     {

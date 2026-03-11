@@ -18,6 +18,7 @@ namespace VeinsOfMalice.UI
         {
             if (item != null)
             {
+                Debug.Log($"<color=yellow>[InventorySlot]</color> Showing item: {item.itemName}");
                 if (iconImage != null)
                 {
                     iconImage.sprite = item.icon;
