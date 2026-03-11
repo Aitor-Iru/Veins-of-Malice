@@ -58,6 +58,13 @@ namespace VeinsOfMalice.World
             var inv = player.GetComponentInParent<PlayerInventory>();
             if (inv != null)
             {
+                if (itemData == null)
+                {
+                    Debug.LogError($"<color=red>[Pickup]</color> ItemData is NULL on {gameObject.name}! Can't pick up.");
+                    return;
+                }
+
+                Debug.Log($"<color=orange>[Pickup]</color> Adding to Inv ID: {inv.GetInstanceID()} on {inv.gameObject.name}");
                 if (inv.AddItem(itemData))
                 {
                     Debug.Log($"<color=green>[Pickup]</color> Picked up {itemData.itemName}");

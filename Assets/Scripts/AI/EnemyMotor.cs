@@ -10,7 +10,7 @@ namespace VeinsOfMalice.AI
     {
         [Header("Movement Settings")]
         [SerializeField] private float moveSpeed = 4f;
-        [SerializeField] private float acceleration = 10f;
+        [SerializeField] private float acceleration = 40f; // Higher acceleration means stronger "grip" to current movement state
         
         private Rigidbody rb;
         private Vector3 moveDirection;
@@ -22,6 +22,9 @@ namespace VeinsOfMalice.AI
             // Apply 2.5D constraints
             rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionZ;
             rb.interpolation = RigidbodyInterpolation.Interpolate;
+            rb.mass = 50f; // High mass makes them feel heavy and hard to push
+            rb.linearDamping = 2f; // Linear drag to stop them quickly if pushed
+            rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
         }
 
         public void SetMoveDirection(Vector3 direction)

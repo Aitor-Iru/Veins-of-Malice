@@ -100,6 +100,7 @@ MonoBehaviour:
   idleFloatAmplitude: 0.2
   idleFloatSpeed: 2
   collectionDelay: 2
+  itemData: {fileID: 11400000, guid: d6ca48d43c1435d499e714d957a4496f, type: 2}
 --- !u!1 &5812999684421268777
 GameObject:
   m_ObjectHideFlags: 0

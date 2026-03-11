@@ -96,6 +96,10 @@ namespace VeinsOfMalice.World
                     {
                         inv.AddItem(itemData);
                     }
+                    else
+                    {
+                        Debug.LogWarning($"<color=red>[Essence]</color> ItemData is MISSING on {gameObject.name}. It won't show in the grid!");
+                    }
                 }
                 else
                 {

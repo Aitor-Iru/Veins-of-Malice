@@ -19,6 +19,8 @@ namespace VeinsOfMalice.Editor
 
             // Physics
             Rigidbody rb = enemyObj.AddComponent<Rigidbody>();
+            rb.mass = 50f;
+            rb.linearDamping = 2f;
             rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionZ;
             rb.interpolation = RigidbodyInterpolation.Interpolate;
             rb.collisionDetectionMode = CollisionDetectionMode.Continuous;

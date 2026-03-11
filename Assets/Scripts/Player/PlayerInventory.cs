@@ -29,14 +29,23 @@ namespace VeinsOfMalice.Player
         /// </summary>
         public bool AddItem(World.ItemData item)
         {
+            Debug.Log($"<color=white>[Inventory]</color> (ID: {GetInstanceID()}) AddItem requested for: {(item != null ? item.itemName : "NULL ITEM")}");
+
+            if (item == null)
+            {
+                Debug.LogError("<color=red>[Inventory]</color> CANNOT ADD NULL ITEM!");
+                return false;
+            }
+
             if (items.Count >= maxSlots)
             {
-                Debug.LogWarning("<color=orange>[Inventory]</color> No more space!");
+                Debug.LogWarning($"<color=orange>[Inventory]</color> No more space ({items.Count}/{maxSlots})!");
                 return false;
             }
 
             items.Add(item);
-            Debug.Log($"<color=cyan>[Inventory]</color> (ID: {GetInstanceID()}) Added item: {item.itemName}. Total items: {items.Count}");
+            Debug.Log($"<color=cyan>[Inventory]</color> (ID: {GetInstanceID()}) SUCCESS. Added: {item.itemName}. Current count: {items.Count}");
+            
             OnInventoryChanged?.Invoke();
             return true;
         }

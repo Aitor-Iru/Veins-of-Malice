@@ -30,16 +30,26 @@ namespace VeinsOfMalice.UI
                 
                 if (playerInventory == null)
                     playerInventory = FindFirstObjectByType<PlayerInventory>();
+                
+                // CRITICAL: Check for duplicates
+                PlayerInventory[] allInvs = FindObjectsByType<PlayerInventory>(FindObjectsSortMode.None);
+                if (allInvs.Length > 1)
+                {
+                    Debug.LogError($"<color=red>[InventoryUI]</color> DETECTED {allInvs.Length} INVENTORIES! IDs:");
+                    foreach(var inv in allInvs) Debug.LogError($" - {inv.gameObject.name} (ID: {inv.GetInstanceID()})");
+                }
             }
 
             if (playerInventory != null)
             {
                 Debug.Log($"<color=green>[InventoryUI]</color> Linked to PlayerInventory on {playerInventory.gameObject.name} (ID: {playerInventory.GetInstanceID()})");
+                SubscribeToInventory();
             }
             else
             {
                 Debug.LogError("<color=red>[InventoryUI]</color> FAILED to find any PlayerInventory in scene!");
             }
+
             if (inputReader == null)
             {
                 Debug.LogWarning("<color=orange>[InventoryUI]</color> InputReader not assigned! Seeking in project or Resources...");
@@ -58,18 +68,24 @@ namespace VeinsOfMalice.UI
             if (inputReader != null)
             {
                 inputReader.OnInventoryToggleStarted += ToggleInventory;
-                Debug.Log("<color=green>[InventoryUI]</color> Subscribed to OnInventoryToggleStarted");
-            }
-            else
-            {
-                Debug.LogError("<color=red>[InventoryUI]</color> InputReader is still NULL. Can't toggle inventory!");
+                Debug.Log("<color=green>[InventoryUI]</color> Subscribed to InputReader");
             }
             
             if (playerInventory != null)
             {
-                playerInventory.OnEssenceChanged += HandleEssenceChanged;
-                playerInventory.OnInventoryChanged += HandleInventoryChanged;
+                SubscribeToInventory();
             }
+        }
+
+        private void SubscribeToInventory()
+        {
+            // Unsubscribe first to avoid double subscription
+            playerInventory.OnEssenceChanged -= HandleEssenceChanged;
+            playerInventory.OnInventoryChanged -= HandleInventoryChanged;
+
+            playerInventory.OnEssenceChanged += HandleEssenceChanged;
+            playerInventory.OnInventoryChanged += HandleInventoryChanged;
+            Debug.Log("<color=green>[InventoryUI]</color> Events Subscribed");
         }
 
         private void OnDisable()
@@ -90,14 +106,11 @@ namespace VeinsOfMalice.UI
             if (inventoryPanel != null)
                 inventoryPanel.SetActive(isOpen);
             
+            Debug.Log($"<color=cyan>[InventoryUI]</color> (ID: {GetInstanceID()}) Toggle: {(isOpen ? "OPEN" : "CLOSED")}");
+
             if (isOpen)
             {
                 UpdateUI();
-                Debug.Log("<color=cyan>[Inventory]</color> Panel Opened");
-            }
-            else
-            {
-                Debug.Log("<color=cyan>[Inventory]</color> Panel Closed");
             }
         }
 
@@ -113,9 +126,13 @@ namespace VeinsOfMalice.UI
 
         private void UpdateUI()
         {
-            if (playerInventory == null) return;
+            if (playerInventory == null)
+            {
+                Debug.LogError($"<color=red>[InventoryUI]</color> (ID: {GetInstanceID()}) CANNOT UPDATE: PlayerInventory is NULL!");
+                return;
+            }
 
-            Debug.Log($"<color=green>[InventoryUI]</color> Updating UI. Items in list: {playerInventory.Items.Count}");
+            Debug.Log($"<color=green>[InventoryUI]</color> (ID: {GetInstanceID()}) Updating from Inv ID: {playerInventory.GetInstanceID()}. Items: {playerInventory.Items.Count}");
 
             if (slots != null)
             {
@@ -124,7 +141,11 @@ namespace VeinsOfMalice.UI
                 {
                     if (i < invItems.Count)
                     {
-                        slots[i].SetItem(invItems[i]);
+                        var item = invItems[i];
+                        if (item != null)
+                            slots[i].SetItem(item);
+                        else
+                            slots[i].ClearSlot();
                     }
                     else
                     {
