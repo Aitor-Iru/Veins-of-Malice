@@ -50,7 +50,17 @@ namespace VeinsOfMalice.Editor
             essenceRect.anchorMax = new Vector2(1, 1);
             essenceRect.pivot = new Vector2(1, 1);
             essenceRect.anchoredPosition = new Vector2(-20, -20);
-            essenceRect.sizeDelta = new Vector2(150, 50);
+            essenceRect.sizeDelta = new Vector2(160, 50);
+
+            // Background for Essence
+            GameObject essBgObj = new GameObject("Background", typeof(RectTransform), typeof(Image));
+            essBgObj.transform.SetParent(essenceContainer.transform, false);
+            RectTransform essBgRect = essBgObj.GetComponent<RectTransform>();
+            essBgRect.anchorMin = Vector2.zero;
+            essBgRect.anchorMax = Vector2.one;
+            essBgRect.sizeDelta = Vector2.zero;
+            Image essBgImg = essBgObj.GetComponent<Image>();
+            essBgImg.color = new Color(0, 0, 0, 0.4f); // Semi-transparent black
 
             // Icon
             GameObject iconObj = new GameObject("Icon", typeof(RectTransform), typeof(Image));
@@ -118,46 +128,143 @@ namespace VeinsOfMalice.Editor
             invRect.anchorMax = Vector2.one;
             invRect.sizeDelta = Vector2.zero;
 
+            // Content Container (Everything that shows/hides)
+            GameObject contentObj = new GameObject("Content", typeof(RectTransform));
+            contentObj.transform.SetParent(invObj.transform, false);
+            RectTransform contentRect = contentObj.GetComponent<RectTransform>();
+            contentRect.anchorMin = Vector2.zero;
+            contentRect.anchorMax = Vector2.one;
+            contentRect.sizeDelta = Vector2.zero;
+
             // Background / Dim
             GameObject bgObj = new GameObject("Background_Dim", typeof(RectTransform), typeof(Image));
-            bgObj.transform.SetParent(invObj.transform, false);
-            bgObj.GetComponent<Image>().color = new Color(0, 0, 0, 0.6f);
-            bgObj.GetComponent<RectTransform>().sizeDelta = new Vector2(2000, 2000); // Overlay
+            bgObj.transform.SetParent(contentObj.transform, false);
+            bgObj.GetComponent<Image>().color = new Color(0, 0, 0, 0.75f);
+            bgObj.GetComponent<RectTransform>().sizeDelta = new Vector2(3000, 3000); // Massive overlay
 
             // Main Panel
             GameObject panelObj = new GameObject("Panel", typeof(RectTransform), typeof(Image));
-            panelObj.transform.SetParent(invObj.transform, false);
+            panelObj.transform.SetParent(contentObj.transform, false);
             RectTransform panelRect = panelObj.GetComponent<RectTransform>();
             panelRect.sizeDelta = new Vector2(600, 400);
-            panelObj.GetComponent<Image>().color = new Color(0.15f, 0.1f, 0.2f); // Dark purple
+            panelObj.GetComponent<Image>().color = new Color(0.1f, 0.08f, 0.15f, 1f); // Solid dark purple
 
             // Title
             GameObject titleObj = new GameObject("Title", typeof(RectTransform), typeof(TextMeshProUGUI));
             titleObj.transform.SetParent(panelObj.transform, false);
             TextMeshProUGUI titleText = titleObj.GetComponent<TextMeshProUGUI>();
             titleText.text = "INVENTARIO";
-            titleText.fontSize = 32;
+            titleText.fontSize = 28;
             titleText.alignment = TextAlignmentOptions.Center;
-            titleObj.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 150);
+            titleObj.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 165);
 
-            // Essence Count in Inventory
+            // Removing the bottom Essence counter as requested by user - it should be inside slots
+            /*
             GameObject essObj = new GameObject("EssenceCount", typeof(RectTransform), typeof(TextMeshProUGUI));
-            essObj.transform.SetParent(panelObj.transform, false);
-            TextMeshProUGUI essText = essObj.GetComponent<TextMeshProUGUI>();
-            essText.text = "Esencia Maldita: 0";
-            essText.fontSize = 24;
-            essText.alignment = TextAlignmentOptions.Center;
+            ...
+            */
+
+            // Grid Container
+            GameObject gridObj = new GameObject("Grid", typeof(RectTransform), typeof(GridLayoutGroup));
+            gridObj.transform.SetParent(panelObj.transform, false);
+            RectTransform gridRect = gridObj.GetComponent<RectTransform>();
+            gridRect.sizeDelta = new Vector2(500, 250);
+            gridRect.anchoredPosition = new Vector2(0, 0);
+
+            GridLayoutGroup grid = gridObj.GetComponent<GridLayoutGroup>();
+            grid.cellSize = new Vector2(70, 70);
+            grid.spacing = new Vector2(10, 10);
+            grid.startAxis = GridLayoutGroup.Axis.Horizontal;
+            grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            grid.constraintCount = 6;
+            grid.childAlignment = TextAnchor.MiddleCenter;
+
+            // Create 24 Slots (4 rows of 6)
+            for (int i = 0; i < 24; i++)
+            {
+                GameObject slotObj = new GameObject($"Slot_{i}", typeof(RectTransform), typeof(Image));
+                slotObj.transform.SetParent(gridObj.transform, false);
+                slotObj.GetComponent<Image>().color = new Color(0.15f, 0.1f, 0.25f, 1f); // More visible slot background
+
+                // Empty Graphic
+                GameObject emptyObj = new GameObject("EmptyGraphic", typeof(RectTransform), typeof(Image));
+                emptyObj.transform.SetParent(slotObj.transform, false);
+                RectTransform emptyRect = emptyObj.GetComponent<RectTransform>();
+                emptyRect.anchorMin = Vector2.zero;
+                emptyRect.anchorMax = Vector2.one;
+                emptyRect.sizeDelta = new Vector2(-20, -20);
+                Image emptyImg = emptyObj.GetComponent<Image>();
+                emptyImg.color = new Color(1, 1, 1, 0.15f); // Increased visibility
+
+                // Icon Object
+                GameObject iconObj = new GameObject("Icon", typeof(RectTransform), typeof(Image));
+                iconObj.transform.SetParent(slotObj.transform, false);
+                RectTransform iconRect = iconObj.GetComponent<RectTransform>();
+                iconRect.anchorMin = Vector2.zero;
+                iconRect.anchorMax = Vector2.one;
+                iconRect.sizeDelta = new Vector2(-15, -15);
+                Image iconImg = iconObj.GetComponent<Image>();
+                iconImg.preserveAspect = true;
+                iconImg.enabled = false; // Starts hidden
+
+                // Name Text (Inside Slot)
+                GameObject nameObj = new GameObject("ItemName", typeof(RectTransform), typeof(TextMeshProUGUI));
+                nameObj.transform.SetParent(slotObj.transform, false);
+                TextMeshProUGUI nameTxt = nameObj.GetComponent<TextMeshProUGUI>();
+                nameTxt.fontSize = 8;
+                nameTxt.alignment = TextAlignmentOptions.Center;
+                nameTxt.enableWordWrapping = false;
+                nameTxt.overflowMode = TextOverflowModes.Ellipsis;
+                RectTransform nameRect = nameObj.GetComponent<RectTransform>();
+                nameRect.anchorMin = new Vector2(0, 0);
+                nameRect.anchorMax = new Vector2(1, 0.3f);
+                nameRect.sizeDelta = Vector2.zero;
+
+                // Amount Text (Inside Slot)
+                GameObject amtObj = new GameObject("ItemAmount", typeof(RectTransform), typeof(TextMeshProUGUI));
+                amtObj.transform.SetParent(slotObj.transform, false);
+                TextMeshProUGUI amtTxt = amtObj.GetComponent<TextMeshProUGUI>();
+                amtTxt.fontSize = 10;
+                amtTxt.alignment = TextAlignmentOptions.Right;
+                RectTransform amtRect = amtObj.GetComponent<RectTransform>();
+                amtRect.anchorMin = new Vector2(0.5f, 0.5f);
+                amtRect.anchorMax = new Vector2(1, 1);
+                amtRect.anchoredPosition = new Vector2(-5, -5);
+                amtRect.sizeDelta = Vector2.zero;
+
+                InventorySlotUI slotUI = slotObj.AddComponent<InventorySlotUI>();
+                
+                SerializedObject soSlot = new SerializedObject(slotUI);
+                soSlot.FindProperty("iconImage").objectReferenceValue = iconImg;
+                soSlot.FindProperty("emptyGraphic").objectReferenceValue = emptyObj;
+                soSlot.FindProperty("itemNameText").objectReferenceValue = nameTxt;
+                soSlot.FindProperty("itemAmountText").objectReferenceValue = amtTxt;
+                soSlot.ApplyModifiedProperties();
+            }
             
             // Logic
             InventoryUI invUI = invObj.AddComponent<InventoryUI>();
             SerializedObject so = new SerializedObject(invUI);
-            so.FindProperty("inventoryPanel").objectReferenceValue = invObj;
-            so.FindProperty("essenceText").objectReferenceValue = essText;
+            so.FindProperty("inventoryPanel").objectReferenceValue = contentObj; 
+            so.FindProperty("essenceText").objectReferenceValue = null; 
             
-            // Try assign InputReader manually if possible, usually better via Inspector
+            // Assign InputReader automatically
+            InputReader ir = AssetDatabase.LoadAssetAtPath<InputReader>("Assets/Input/InputReader.asset");
+            if (ir != null)
+            {
+                so.FindProperty("inputReader").objectReferenceValue = ir;
+            }
+            else
+            {
+                Debug.LogWarning("[HUDSetupTool] InputReader asset NOT found at 'Assets/Input/InputReader.asset'. Manual assignment required.");
+            }
+            
             so.ApplyModifiedProperties();
 
-            invObj.SetActive(false);
+            // Hide the entire content container at start
+            contentObj.SetActive(false);
+            
+            invObj.SetActive(true); 
         }
 
         private static Slider CreateBar(Transform parent, string name, Color color, Vector2 anchoredPos)

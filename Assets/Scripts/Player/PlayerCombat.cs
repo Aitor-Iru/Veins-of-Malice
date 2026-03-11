@@ -16,7 +16,7 @@ public class PlayerCombat : MonoBehaviour
 
     [Header("Attack Settings")]
     [SerializeField] private float attackCooldown = 0.2f;
-    [SerializeField] private float heavyAttackCooldown = 3.0f;
+    [SerializeField] private float heavyAttackCooldown = 5.0f;
     [SerializeField] private float attackRange = 1.5f;
     [SerializeField] private float heavyAttackRange = 2.0f;
     [SerializeField] private float attackDelay = 0.1f;
@@ -25,11 +25,11 @@ public class PlayerCombat : MonoBehaviour
     [SerializeField] private float comboStep1Damage = 10f;
     [SerializeField] private float comboStep2Damage = 15f;
     [SerializeField] private float comboStep3Damage = 25f;
-    [SerializeField] private float heavyAttackDamage = 50f;
+    [SerializeField] private float heavyAttackDamage = 80f;
 
     [Header("Energy Costs")]
     [SerializeField] private float attackEnergyCost = 8f; // Coste adicional por cada swing
-    [SerializeField] private float heavyAttackEnergyCost = 40f; // Coste mucho más alto
+    [SerializeField] private float heavyAttackEnergyCost = 60f; // Coste mucho más alto
 
     // ── State ─────────────────────────────────────────────────────────────────
     private int currentComboStep = 0;
@@ -192,8 +192,9 @@ public class PlayerCombat : MonoBehaviour
         // Aplicar multiplicador si el modo Energía Maldita está activo
         if (playerEnergy != null && playerEnergy.IsEnergyModeActive)
         {
-            damage *= 1.25f;
-            Debug.Log($"<color=cyan>[ENERGY BOOST]</color> Damage boosted to {damage}!");
+            float multiplier = isHeavy ? 1.75f : 1.25f;
+            damage *= multiplier;
+            Debug.Log($"<color=cyan>[ENERGY BOOST]</color> {(isHeavy ? "HEAVY " : "LIGHT ")}Damage boosted by {multiplier}x to {damage}!");
         }
 
         foreach (var hit in hits)

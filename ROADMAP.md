@@ -21,6 +21,14 @@ Este documento sirve como hoja de ruta viva para el desarrollo. Marcar las casil
     - [x] Implementar cámara 2D básica (CameraController.cs con seguimiento suave y dead zone).
     - [x] Dash cooldown (1.5s), Coyote Time (0.15s) y Jump Buffer (0.1s) en PlayerController.
     - [x] PlayerHealth.cs con invulnerabilidad temporal.
+- [x] Analyze current combat and energy values
+- [x] Implement heavy attack improvements
+    - [x] Increase heavy attack damage
+    - [x] Increase heavy attack cooldown
+    - [x] Add extra damage multiplier for heavy attack when Cursed Energy is active
+    - [x] Increase Cursed Energy cost for heavy attack
+- [x] Verify changes in-game
+- [x] Update documentation
 
 ### 1.2. Arquitectura del Código
 - [x] **Game Manager**
@@ -101,7 +109,7 @@ Este documento sirve como hoja de ruta viva para el desarrollo. Marcar las casil
 ### 3.3. Enemigo Elite / Mini-Boss
 - [ ] **Maldición Grado 2 (Mini-Boss)**
     - [ ] Diseñar patrón de ataque de 2 fases.
-    - [ ] Fase 1: Ataques físicos pesados.
+    - [x] Fase 1: Ataques físicos pesados. (Mejorado con multiplicadores de energía)
     - [ ] Fase 2: Ataque de área o proyectil de energía.
     - [ ] Barra de vida de jefe en UI.
 
