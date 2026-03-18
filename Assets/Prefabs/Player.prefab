@@ -138,6 +138,7 @@ GameObject:
   - component: {fileID: 2097312328582248310}
   - component: {fileID: 7531933031045846535}
   - component: {fileID: 947191594902405524}
+  - component: {fileID: 2823802071406625415}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -225,12 +226,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   inputReader: {fileID: 11400000, guid: 86500949fed35a245bffb7f489183230, type: 2}
-  jumpForce: 10
-  dashForce: 20
-  dashDuration: 0.2
+  jumpForce: 9.5
+  dashForce: 18
+  dashDuration: 0.15
   dashCooldown: 1.5
   walkSpeed: 5
-  runSpeed: 10
+  runSpeed: 9.75
   startsRunning: 1
   coyoteTime: 0.15
   jumpBufferTime: 0.1
@@ -256,6 +257,7 @@ MonoBehaviour:
   playerEnergy: {fileID: 2097312328582248310}
   comboResetTime: 1.75
   maxComboSteps: 3
+  comboCooldown: 1.25
   attackCooldown: 0.2
   heavyAttackCooldown: 3
   attackRange: 1.5
@@ -286,6 +288,8 @@ MonoBehaviour:
   maxHealth: 100
   invulnerabilityDuration: 0.5
   blockDamageReduction: 0.7
+  regenDelay: 15
+  regenRate: 5
 --- !u!114 &2097312328582248310
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -300,8 +304,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VeinsOfMalice.Player.PlayerEnergy
   inputReader: {fileID: 11400000, guid: 86500949fed35a245bffb7f489183230, type: 2}
   maxEnergy: 100
-  passiveDrainRate: 2
-  regenRate: 5
+  passiveDrainRate: 1
+  regenRate: 8
   minEnergyToStart: 20
 --- !u!114 &7531933031045846535
 MonoBehaviour:
@@ -334,3 +338,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VeinsOfMalice.Player.PlayerInventory
   cursedEssenceCount: 0
+  maxSlots: 24
+  items: []
+--- !u!114 &2823802071406625415
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8606593825299405992}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29ae5f33fafcef143b3fb594f45f3187, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DebugEssenceAdder

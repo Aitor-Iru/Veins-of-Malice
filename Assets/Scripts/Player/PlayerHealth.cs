@@ -9,6 +9,10 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     [SerializeField] private float invulnerabilityDuration = 0.5f;
     [SerializeField] private float blockDamageReduction = 0.7f; // 70% reducción
 
+    [Header("Regen Settings")]
+    [SerializeField] private float regenDelay = 15f; // Tiempo sin daño para empezar a curar
+    [SerializeField] private float regenRate = 5f;   // Cuánta vida se recupera por segundo
+
 
     public float MaxHealth => maxHealth;
     public float CurrentHealth { get; private set; }
@@ -22,6 +26,8 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     private CameraController camController;
     private Renderer rend;
     private Color originalColor;
+    
+    private float lastDamageTime;
 
 
     private void Awake()
@@ -43,6 +49,15 @@ public class PlayerHealth : MonoBehaviour, IDamageable
             if (invulnerabilityTimer <= 0f)
                 IsInvulnerable = false;
         }
+
+        // Regeneración automática (fuera de combate)
+        if (CurrentHealth > 0f && CurrentHealth < maxHealth)
+        {
+            if (Time.time - lastDamageTime >= regenDelay)
+            {
+                Heal(regenRate * Time.deltaTime);
+            }
+        }
     }
 
     public void TakeDamage(float amount, Vector3 hitDirection)
@@ -57,6 +72,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         }
 
         CurrentHealth = Mathf.Max(0f, CurrentHealth - amount);
+        lastDamageTime = Time.time; // Reiniciar el temporizador de regeneración
         OnHealthChanged?.Invoke(CurrentHealth, maxHealth);
 
         // Feedback de daño

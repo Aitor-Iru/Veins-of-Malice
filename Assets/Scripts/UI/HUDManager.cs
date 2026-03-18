@@ -22,6 +22,7 @@ namespace VeinsOfMalice.UI
 
         [Header("Energy Bar")]
         [SerializeField] private Slider energySlider;
+        [SerializeField] private Slider energyGhostSlider;
         [SerializeField] private TMPro.TextMeshProUGUI energyText;
 
         [Header("Essence Counter")]
@@ -113,6 +114,19 @@ namespace VeinsOfMalice.UI
                     healthGhostSlider.value = healthSlider.value;
                 }
             }
+
+            // Smoothly lerp the ghost bar to catch up with actual energy
+            if (energyGhostSlider != null && energySlider != null)
+            {
+                if (energyGhostSlider.value > energySlider.value)
+                {
+                    energyGhostSlider.value = Mathf.MoveTowards(energyGhostSlider.value, energySlider.value, ghostLerpSpeed * Time.deltaTime * max(10f, (energyGhostSlider.value - energySlider.value) * 5f));
+                }
+                else
+                {
+                    energyGhostSlider.value = energySlider.value;
+                }
+            }
         }
 
         private float max(float a, float b) => a > b ? a : b;
@@ -123,6 +137,11 @@ namespace VeinsOfMalice.UI
             {
                 energySlider.maxValue = max;
                 energySlider.value = current;
+
+                if (energyGhostSlider != null)
+                {
+                    energyGhostSlider.maxValue = max;
+                }
             }
 
             if (energyText != null)
