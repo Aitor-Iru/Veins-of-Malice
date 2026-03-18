@@ -78,6 +78,7 @@ public class InputReader : ScriptableObject
         _interact = _playerMap.FindAction("Interact", throwIfNotFound: true);
         _pause    = _playerMap.FindAction("Pause",    throwIfNotFound: true);
         _block    = _playerMap.FindAction("Block",    throwIfNotFound: true);
+        _heavyAttack = _playerMap.FindAction("HeavyAttack", throwIfNotFound: false);
         _toggleEnergy = _playerMap.FindAction("ToggleEnergy", throwIfNotFound: true);
         _sprint = _playerMap.FindAction("Sprint", throwIfNotFound: true);
         _inventory = _playerMap.FindAction("Inventory", throwIfNotFound: false); // Use false to avoid crash if not added yet
@@ -97,6 +98,7 @@ public class InputReader : ScriptableObject
         _pause.started   += OnPause;
         _block.started   += OnBlockStartedAction;
         _block.canceled  += OnBlockCanceledAction;
+        if (_heavyAttack != null) _heavyAttack.started += OnHeavyAttack;
         _toggleEnergy.started += OnToggleEnergy;
         _sprint.started += OnSprint;
         if (_inventory != null) _inventory.started += OnInventoryToggle;
@@ -120,6 +122,7 @@ public class InputReader : ScriptableObject
         _pause.started   -= OnPause;
         _block.started   -= OnBlockStartedAction;
         _block.canceled  -= OnBlockCanceledAction;
+        if (_heavyAttack != null) _heavyAttack.started -= OnHeavyAttack;
         _toggleEnergy.started -= OnToggleEnergy;
         _sprint.started -= OnSprint;
         if (_inventory != null) _inventory.started -= OnInventoryToggle;

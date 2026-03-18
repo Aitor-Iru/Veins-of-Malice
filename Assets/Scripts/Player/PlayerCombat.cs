@@ -13,6 +13,7 @@ public class PlayerCombat : MonoBehaviour
     [Header("Combo Settings")]
     [SerializeField] private float comboResetTime = 1f;
     [SerializeField] private int maxComboSteps = 3;
+    [SerializeField] private float comboCooldown = 1.5f;
 
     [Header("Attack Settings")]
     [SerializeField] private float attackCooldown = 0.2f;
@@ -35,6 +36,7 @@ public class PlayerCombat : MonoBehaviour
     private int currentComboStep = 0;
     private float lastAttackTime;
     private float lastHeavyAttackTime;
+    private float comboCooldownEndTime;
     private bool isBlocking;
     private Renderer rend;
     private Color originalColor;
@@ -84,6 +86,12 @@ public class PlayerCombat : MonoBehaviour
     private void HandleAttack()
     {
         if (isBlocking) return; // No se puede atacar mientras bloqueas
+        if (Time.time < comboCooldownEndTime)
+        {
+            // Opcional: Un log para ti si el cooldown está activo
+            // Debug.Log("<color=orange>[Combo Cooldown] Wait for cooldown...</color>");
+            return;
+        }
         if (Time.time - lastAttackTime < attackCooldown) return;
 
         Attack();
@@ -125,6 +133,12 @@ public class PlayerCombat : MonoBehaviour
         if (currentComboStep > maxComboSteps) currentComboStep = 1;
 
         lastAttackTime = Time.time;
+
+        if (currentComboStep == maxComboSteps)
+        {
+            // Apply extra cooldown after finishing the full combo
+            comboCooldownEndTime = Time.time + comboCooldown;
+        }
 
         // Feedback
         Debug.Log($"[PlayerCombat] Attack {currentComboStep}!");
@@ -225,5 +239,15 @@ public class PlayerCombat : MonoBehaviour
         Vector3 pos = attackPoint ? attackPoint.position : transform.position + transform.forward;
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(pos, attackRange);
+    }
+
+    // ── Upgrades ──────────────────────────────────────────────────────────────
+    public void UpgradeBaseDamage(float extraDamage)
+    {
+        comboStep1Damage += extraDamage;
+        comboStep2Damage += extraDamage;
+        comboStep3Damage += extraDamage;
+        heavyAttackDamage += (extraDamage * 1.5f);
+        Debug.Log($"<color=green>[PlayerCombat]</color> Damage upgraded! Combo Step 1 is now {comboStep1Damage}");
     }
 }

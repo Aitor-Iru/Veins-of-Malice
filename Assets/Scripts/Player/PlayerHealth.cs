@@ -114,4 +114,13 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         if (GameManager.Instance != null)
             GameManager.Instance.ChangeState(GameManager.GameState.GameOver);
     }
+
+    // ── Upgrades ──────────────────────────────────────────────────────────────
+    public void UpgradeMaxHealth(float extraHealth)
+    {
+        maxHealth += extraHealth;
+        CurrentHealth += extraHealth;
+        OnHealthChanged?.Invoke(CurrentHealth, maxHealth);
+        Debug.Log($"<color=green>[PlayerHealth]</color> Max health upgraded to {maxHealth}!");
+    }
 }

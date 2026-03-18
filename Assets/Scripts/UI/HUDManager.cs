@@ -18,9 +18,11 @@ namespace VeinsOfMalice.UI
         [SerializeField] private Slider healthSlider;
         [SerializeField] private Slider healthGhostSlider; // For that "delayed" damage effect
         [SerializeField] private float ghostLerpSpeed = 2f;
+        [SerializeField] private TMPro.TextMeshProUGUI healthText;
 
         [Header("Energy Bar")]
         [SerializeField] private Slider energySlider;
+        [SerializeField] private TMPro.TextMeshProUGUI energyText;
 
         [Header("Essence Counter")]
         [SerializeField] private TMPro.TextMeshProUGUI essenceText;
@@ -90,6 +92,11 @@ namespace VeinsOfMalice.UI
                     // Ghost slider catches up in Update
                 }
             }
+
+            if (healthText != null)
+            {
+                healthText.text = $"{Mathf.CeilToInt(current)} / {Mathf.CeilToInt(max)}";
+            }
         }
 
         private void Update()
@@ -116,6 +123,11 @@ namespace VeinsOfMalice.UI
             {
                 energySlider.maxValue = max;
                 energySlider.value = current;
+            }
+
+            if (energyText != null)
+            {
+                energyText.text = $"{Mathf.CeilToInt(current)} / {Mathf.CeilToInt(max)}";
             }
         }
 
