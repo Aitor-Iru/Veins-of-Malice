@@ -13,6 +13,7 @@ namespace VeinsOfMalice.AI
         [SerializeField] private float currentHealth;
         [SerializeField] private Color hitColor = Color.red;
         [SerializeField] private float flashDuration = 0.1f;
+        [SerializeField] private int xpReward = 20;
         
         private Renderer rend;
         private Color originalColor;
@@ -63,6 +64,13 @@ namespace VeinsOfMalice.AI
         {
             isDead = true;
             OnDeath?.Invoke();
+
+            var player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
+            {
+                var xpSys = player.GetComponentInChildren<VeinsOfMalice.Player.PlayerExperience>();
+                if (xpSys != null) xpSys.AddXP(xpReward);
+            }
         }
     }
 }

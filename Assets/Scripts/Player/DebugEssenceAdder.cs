@@ -39,5 +39,29 @@ public class DebugEssenceAdder : MonoBehaviour
                 Debug.LogWarning("[DebugEssenceAdder] No se encontró el PlayerInventory");
             }
         }
+
+        // Activar 50 XP con la tecla 'X'
+        if (UnityEngine.InputSystem.Keyboard.current != null && UnityEngine.InputSystem.Keyboard.current.xKey.wasPressedThisFrame)
+        {
+            PlayerExperience playerXP = inventory != null ? inventory.GetComponent<VeinsOfMalice.Player.PlayerExperience>() : FindFirstObjectByType<VeinsOfMalice.Player.PlayerExperience>();
+            if (playerXP == null) playerXP = FindFirstObjectByType<VeinsOfMalice.Player.PlayerExperience>();
+            
+            if (playerXP != null)
+            {
+                playerXP.AddXP(50);
+            }
+        }
+
+        // Subir 100 niveles de golpe con la tecla 'Z'
+        if (UnityEngine.InputSystem.Keyboard.current != null && UnityEngine.InputSystem.Keyboard.current.zKey.wasPressedThisFrame)
+        {
+            PlayerExperience playerXP = inventory != null ? inventory.GetComponent<VeinsOfMalice.Player.PlayerExperience>() : FindFirstObjectByType<VeinsOfMalice.Player.PlayerExperience>();
+            if (playerXP == null) playerXP = FindFirstObjectByType<VeinsOfMalice.Player.PlayerExperience>();
+            
+            if (playerXP != null)
+            {
+                playerXP.AddXP(100 * playerXP.XPPerLevel);
+            }
+        }
     }
 }

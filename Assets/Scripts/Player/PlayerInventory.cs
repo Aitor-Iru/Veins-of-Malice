@@ -112,13 +112,22 @@ namespace VeinsOfMalice.Player
         }
 
         /// <summary>
-        /// Añade una cantidad de esencia al inventario.
+        /// Añade una cantidad de esencia al inventario. Además otorga experiencia proporcional.
         /// </summary>
         public void AddEssence(int amount)
         {
             cursedEssenceCount += amount;
             Debug.Log($"<color=cyan>[Inventory]</color> Collected Essence! Total: {cursedEssenceCount}");
             OnEssenceChanged?.Invoke(cursedEssenceCount);
+
+            // Añadir XP (reducida, ej. 2 XP por cada punto de esencia recogido, 
+            // ten en cuenta que el usuario sube de nivel con 100 XP)
+            PlayerExperience playerXP = FindFirstObjectByType<PlayerExperience>();
+            if (playerXP != null)
+            {
+                int xpReward = amount * 2; // Relación Configurable (2 de XP por esencia)
+                playerXP.AddXP(xpReward);
+            }
         }
 
         /// <summary>
