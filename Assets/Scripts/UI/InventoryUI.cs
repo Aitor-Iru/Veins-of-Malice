@@ -142,8 +142,8 @@ namespace VeinsOfMalice.UI
                     if (i < invItems.Count)
                     {
                         var item = invItems[i];
-                        if (item != null)
-                            slots[i].SetItem(item);
+                        if (item != null && item.data != null)
+                            slots[i].SetItem(item.data, item.quantity);
                         else
                             slots[i].ClearSlot();
                     }

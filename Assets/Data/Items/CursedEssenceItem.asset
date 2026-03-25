@@ -16,3 +16,5 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: f3f2ffb6bf8f9034180ffb18d6533d0d, type: 3}
   description: A fragment of pure malice. Used as currency and for dark rituals.
   value: 1
+  isStackable: 1
+  maxStack: 99

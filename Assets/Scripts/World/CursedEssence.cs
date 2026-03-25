@@ -94,7 +94,7 @@ namespace VeinsOfMalice.World
                     inv.AddEssence(value);
                     if (itemData != null)
                     {
-                        inv.AddItem(itemData);
+                        inv.AddItem(itemData, value);
                     }
                     else
                     {

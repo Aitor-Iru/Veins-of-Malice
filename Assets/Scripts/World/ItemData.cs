@@ -9,5 +9,7 @@ namespace VeinsOfMalice.World
         public Sprite icon;
         [TextArea] public string description;
         public int value; // Can be cost or sell price
+        public bool isStackable = true;
+        public int maxStack = 99;
     }
 }

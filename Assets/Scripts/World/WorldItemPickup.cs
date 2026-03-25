@@ -65,7 +65,7 @@ namespace VeinsOfMalice.World
                 }
 
                 Debug.Log($"<color=orange>[Pickup]</color> Adding to Inv ID: {inv.GetInstanceID()} on {inv.gameObject.name}");
-                if (inv.AddItem(itemData))
+                if (inv.AddItem(itemData, amount))
                 {
                     Debug.Log($"<color=green>[Pickup]</color> Picked up {itemData.itemName}");
                     Destroy(gameObject);

@@ -3,6 +3,19 @@ using System;
 
 namespace VeinsOfMalice.Player
 {
+    [System.Serializable]
+    public class InventoryItem
+    {
+        public World.ItemData data;
+        public int quantity;
+
+        public InventoryItem(World.ItemData data, int quantity)
+        {
+            this.data = data;
+            this.quantity = quantity;
+        }
+    }
+
     /// <summary>
     /// PlayerInventory — Gestiona los recursos recolectados por el jugador, como la Esencia Maldita.
     /// </summary>
@@ -13,7 +26,7 @@ namespace VeinsOfMalice.Player
 
         [Header("Inventory")]
         [SerializeField] private int maxSlots = 24;
-        [SerializeField] private System.Collections.Generic.List<World.ItemData> items = new System.Collections.Generic.List<World.ItemData>();
+        [SerializeField] private System.Collections.Generic.List<InventoryItem> items = new System.Collections.Generic.List<InventoryItem>();
 
         // ── Events ────────────────────────────────────────────────────────────────
         public event Action<int> OnEssenceChanged;
@@ -21,20 +34,44 @@ namespace VeinsOfMalice.Player
 
         // ── Public API ────────────────────────────────────────────────────────────
         public int CursedEssenceCount => cursedEssenceCount;
-        public System.Collections.Generic.List<World.ItemData> Items => items;
+        public System.Collections.Generic.List<InventoryItem> Items => items;
         public int MaxSlots => maxSlots;
 
         /// <summary>
         /// Añade un ítem al inventario. Retorna true si hubo espacio.
         /// </summary>
-        public bool AddItem(World.ItemData item)
+        public bool AddItem(World.ItemData item, int amount = 1)
         {
-            Debug.Log($"<color=white>[Inventory]</color> (ID: {GetInstanceID()}) AddItem requested for: {(item != null ? item.itemName : "NULL ITEM")}");
+            Debug.Log($"<color=white>[Inventory]</color> (ID: {GetInstanceID()}) AddItem requested for: {(item != null ? item.itemName : "NULL ITEM")} x{amount}");
 
             if (item == null)
             {
                 Debug.LogError("<color=red>[Inventory]</color> CANNOT ADD NULL ITEM!");
                 return false;
+            }
+
+            if (item.isStackable)
+            {
+                var existingItem = items.Find(i => i.data == item && i.quantity < item.maxStack);
+                if (existingItem != null)
+                {
+                    int spaceLeft = item.maxStack - existingItem.quantity;
+                    int toAdd = Math.Min(spaceLeft, amount);
+                    existingItem.quantity += toAdd;
+                    
+                    Debug.Log($"<color=cyan>[Inventory]</color> (ID: {GetInstanceID()}) SUCCESS. Stacked: {item.itemName}. New quantity: {existingItem.quantity}");
+                    
+                    int remaining = amount - toAdd;
+                    if (remaining > 0)
+                    {
+                        return AddItem(item, remaining);
+                    }
+                    else
+                    {
+                        OnInventoryChanged?.Invoke();
+                        return true;
+                    }
+                }
             }
 
             if (items.Count >= maxSlots)
@@ -43,8 +80,15 @@ namespace VeinsOfMalice.Player
                 return false;
             }
 
-            items.Add(item);
-            Debug.Log($"<color=cyan>[Inventory]</color> (ID: {GetInstanceID()}) SUCCESS. Added: {item.itemName}. Current count: {items.Count}");
+            int addQuantity = item.isStackable ? Math.Min(amount, item.maxStack) : 1;
+            items.Add(new InventoryItem(item, addQuantity));
+            Debug.Log($"<color=cyan>[Inventory]</color> (ID: {GetInstanceID()}) SUCCESS. Added new slot: {item.itemName} x{addQuantity}. Current slot count: {items.Count}");
+            
+            int leftOver = amount - addQuantity;
+            if (leftOver > 0)
+            {
+                return AddItem(item, leftOver);
+            }
             
             OnInventoryChanged?.Invoke();
             return true;
@@ -53,10 +97,16 @@ namespace VeinsOfMalice.Player
         /// <summary>
         /// Elimina un ítem del inventario.
         /// </summary>
-        public void RemoveItem(World.ItemData item)
+        public void RemoveItem(World.ItemData item, int amount = 1)
         {
-            if (items.Remove(item))
+            var existingItem = items.Find(i => i.data == item);
+            if (existingItem != null)
             {
+                existingItem.quantity -= amount;
+                if (existingItem.quantity <= 0)
+                {
+                    items.Remove(existingItem);
+                }
                 OnInventoryChanged?.Invoke();
             }
         }
