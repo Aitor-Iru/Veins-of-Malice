@@ -40,7 +40,7 @@ namespace VeinsOfMalice.AI
             // Spawn Damage Number
             if (VeinsOfMalice.UI.DamageNumberManager.Instance != null)
             {
-                VeinsOfMalice.UI.DamageNumberManager.Instance.SpawnDamageNumber(transform.position, amount, Color.white);
+                VeinsOfMalice.UI.DamageNumberManager.Instance.SpawnDamageNumber(transform.position, amount, Color.red);
             }
 
             // Camera Shake on hit

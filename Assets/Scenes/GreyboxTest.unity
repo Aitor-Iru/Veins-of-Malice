@@ -15964,6 +15964,10 @@ MonoBehaviour:
   damageTextPrefab: {fileID: 553293374}
   floatingLifeTime: 1
   spawnOffset: {x: 0, y: 1.5, z: 0}
+  upwardForce: 5
+  horizontalForceRange: 2
+  gravity: 15
+  scalePopDuration: 0.2
 --- !u!4 &1056384037
 Transform:
   m_ObjectHideFlags: 0

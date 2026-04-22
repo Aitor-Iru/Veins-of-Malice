@@ -15,6 +15,12 @@ namespace VeinsOfMalice.UI
         [SerializeField] private float floatingLifeTime = 1f;
         [SerializeField] private Vector3 spawnOffset = new Vector3(0, 1.5f, 0);
 
+        [Header("Animation")]
+        [SerializeField] private float upwardForce = 5f;
+        [SerializeField] private float horizontalForceRange = 2f;
+        [SerializeField] private float gravity = 15f;
+        [SerializeField] private float scalePopDuration = 0.2f;
+
         private void Awake()
         {
             if (Instance == null) Instance = this;
@@ -26,7 +32,8 @@ namespace VeinsOfMalice.UI
             if (damageTextPrefab == null) return;
 
             GameObject obj = Instantiate(damageTextPrefab, worldPosition + spawnOffset, Quaternion.identity);
-            TextMeshPro text = obj.GetComponentInChildren<TextMeshPro>();
+            obj.SetActive(true); // Asegurarse de que el objeto esté activado al instanciarse
+            TextMeshPro text = obj.GetComponentInChildren<TextMeshPro>(true);
             
             if (text != null)
             {
@@ -34,27 +41,45 @@ namespace VeinsOfMalice.UI
                 text.color = color;
             }
 
-            // Simple move up and fade out effect
+            // Undertale-style bouncy animation
             StartCoroutine(AnimateDamageNumber(obj, text));
         }
 
         private System.Collections.IEnumerator AnimateDamageNumber(GameObject obj, TextMeshPro text)
         {
             float elapsed = 0f;
-            Vector3 startPos = obj.transform.position;
-            Vector3 targetPos = startPos + Vector3.up * 1f;
+            Vector3 velocity = new Vector3(Random.Range(-horizontalForceRange, horizontalForceRange), upwardForce, 0f);
+            
+            // Pop effect setup
+            Vector3 originalScale = obj.transform.localScale;
+            obj.transform.localScale = Vector3.zero;
 
             while (elapsed < floatingLifeTime)
             {
                 elapsed += Time.deltaTime;
                 float t = elapsed / floatingLifeTime;
 
-                obj.transform.position = Vector3.Lerp(startPos, targetPos, t);
+                // Physics movement
+                velocity.y -= gravity * Time.deltaTime;
+                obj.transform.position += velocity * Time.deltaTime;
+
+                // Scale pop-in
+                if (elapsed < scalePopDuration)
+                {
+                    float scaleT = elapsed / scalePopDuration;
+                    float scaleCurve = Mathf.Sin(scaleT * Mathf.PI * 0.5f);
+                    obj.transform.localScale = Vector3.Lerp(Vector3.zero, originalScale, scaleCurve);
+                }
+                else
+                {
+                    obj.transform.localScale = originalScale;
+                }
                 
-                if (text != null)
+                // Fade out in the last half of the lifetime
+                if (text != null && t > 0.5f)
                 {
                     Color c = text.color;
-                    c.a = 1f - t;
+                    c.a = 1f - ((t - 0.5f) * 2f);
                     text.color = c;
                 }
 

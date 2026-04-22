@@ -67,6 +67,12 @@ public class AttackingDummy : MonoBehaviour, IDamageable
     {
         health -= amount;
         Debug.Log($"[AttackingDummy] Ouch! Received {amount} damage. HP: {health}");
+        
+        if (VeinsOfMalice.UI.DamageNumberManager.Instance != null)
+        {
+            VeinsOfMalice.UI.DamageNumberManager.Instance.SpawnDamageNumber(transform.position, amount, Color.red);
+        }
+
         StartCoroutine(FlashColor(hitColor));
     }
 

@@ -23,6 +23,11 @@ public class DummyEnemy : MonoBehaviour, IDamageable
         health -= amount;
         Debug.Log($"[DummyEnemy] Hit! Damage: {amount}. Health remaining: {health}");
         
+        if (VeinsOfMalice.UI.DamageNumberManager.Instance != null)
+        {
+            VeinsOfMalice.UI.DamageNumberManager.Instance.SpawnDamageNumber(transform.position, amount, Color.red);
+        }
+
         if (rend) StartCoroutine(FlashColor());
     }
 
