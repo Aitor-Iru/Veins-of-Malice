@@ -1,6 +1,8 @@
 using UnityEngine;
 using System;
 
+namespace VeinsOfMalice.Player
+{
     public enum PlayerGrade
     {
         Grade4,
