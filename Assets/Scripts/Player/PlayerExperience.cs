@@ -41,7 +41,7 @@ namespace VeinsOfMalice.Player
         public int CurrentLevel => currentLevel;
         public int CurrentXP => currentXP;
         public int XPPerLevel => xpPerLevel;
-        public int MaxLevel => maxLevel;
+        public int MaxLevel => maxLevel; 
         public PlayerGrade CurrentGrade => currentGrade;
 
         private void Start()
@@ -64,17 +64,18 @@ namespace VeinsOfMalice.Player
             bool leveledUp = false;
 
             // Bucle en caso de que gane mucha experiencia de una sola vez
-            while (currentXP >= xpPerLevel && currentLevel < AbsoluteMaxLevel)
+            // AHORA SE DETIENE EN maxLevel (100, 200, etc.)
+            while (currentXP >= xpPerLevel && currentLevel < maxLevel)
             {
                 currentXP -= xpPerLevel;
                 currentLevel++;
                 leveledUp = true;
                 Debug.Log($"<color=green>[Level Up!]</color> Reached Level {currentLevel}");
 
-                // Si llegamos a 500, intentamos Grade Up
-                if (currentLevel == AbsoluteMaxLevel)
+                // Si llegamos al tope de este tramo, nos detenemos
+                if (currentLevel >= maxLevel)
                 {
-                    Debug.Log("<color=yellow>[XP]</color> Reached Level 500! Grade Up available.");
+                    Debug.Log($"<color=yellow>[XP]</color> Reached Level {maxLevel}! Rebirth required.");
                     break; 
                 }
             }
@@ -82,7 +83,7 @@ namespace VeinsOfMalice.Player
             // Si somos nivel máximo de este tramo, capamos XP
             if (currentLevel >= maxLevel)
             {
-                currentXP = Mathf.Max(currentXP, 0); // No resetear a menos que subamos grado
+                currentXP = xpPerLevel;
             }
 
             if (leveledUp)
@@ -95,28 +96,25 @@ namespace VeinsOfMalice.Player
 
         public bool TryRebirth()
         {
-            // Si llegamos al nivel 500, hacemos GRADE UP en lugar de Rebirth normal
+            // Si llegamos al nivel 500, toca Grade Up
             if (currentLevel >= AbsoluteMaxLevel)
             {
                 return TryGradeUp();
             }
 
+            // Si llegamos al nivel máximo actual (100, 200...), subimos el tramo
             if (currentLevel >= maxLevel && maxLevel < AbsoluteMaxLevel)
             {
                 maxLevel += 100;
                 if (maxLevel > AbsoluteMaxLevel) maxLevel = AbsoluteMaxLevel;
                 
-                // Aumentar Energía Maldita en 50 por cada Rebirth
-                if (playerEnergy != null)
-                {
-                    playerEnergy.UpgradeMaxEnergy(50f);
-                }
+                // Bonus de energía por rebirth
+                if (playerEnergy != null) playerEnergy.UpgradeMaxEnergy(50f);
                 
-                Debug.Log($"<color=magenta>[Rebirth]</color> Rebirth successful! New Max Level: {maxLevel}");
+                Debug.Log($"<color=magenta>[Rebirth]</color> New Max Level: {maxLevel}");
                 
                 OnLevelChanged?.Invoke(currentLevel);
                 OnXPChanged?.Invoke(currentXP, xpPerLevel);
-                
                 return true;
             }
             return false;
@@ -130,10 +128,10 @@ namespace VeinsOfMalice.Player
             // Subir grado
             currentGrade++;
             
-            // Reiniciar progreso
+            // Reiniciar progreso para el nuevo grado
             currentLevel = 1;
             currentXP = 0;
-            maxLevel = 100; // El Rebirth vuelve a empezar para el nuevo grado
+            maxLevel = 100; 
 
             Debug.Log($"<color=gold><b>[GRADE UP!]</b></color> New Grade: {currentGrade}");
 

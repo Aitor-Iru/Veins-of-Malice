@@ -77,15 +77,15 @@ namespace VeinsOfMalice.UI
             {
                 if (playerExperience != null && playerExperience.CurrentLevel >= PlayerExperience.AbsoluteMaxLevel)
                 {
-                    xpNumbersText.text = "GRADE UP";
+                    xpNumbersText.text = "<color=#FFFFFF>GRADE UP</color>";
                 }
                 else if (playerExperience != null && playerExperience.CurrentLevel >= playerExperience.MaxLevel)
                 {
-                    xpNumbersText.text = "MAX LVL";
+                    xpNumbersText.text = "<color=#FFFFFF>MAX LVL</color>";
                 }
                 else
                 {
-                    xpNumbersText.text = $"{currentXP} / {xpToNext}";
+                    xpNumbersText.text = $"<color=#FFFFFF>{currentXP} / {xpToNext}</color>";
                 }
             }
         }
@@ -94,18 +94,17 @@ namespace VeinsOfMalice.UI
         {
             if (levelText != null)
             {
-                levelText.text = $"Level: {newLevel}";
+                levelText.text = $"<color=#FFFFFF>Level: {newLevel}</color>"; // Todo el texto en blanco
             }
 
             if (rebirthButton != null && playerExperience != null)
             {
-                // Active if Max Level reached OR Absolute Max Level reached (Grade Up)
+                // Aparece en el nivel máximo de cada tramo (100, 200...)
                 bool canRebirth = newLevel >= playerExperience.MaxLevel && playerExperience.MaxLevel < PlayerExperience.AbsoluteMaxLevel;
                 bool canGradeUp = newLevel >= PlayerExperience.AbsoluteMaxLevel && playerExperience.CurrentGrade < PlayerGrade.SpecialGrade;
                 
                 rebirthButton.gameObject.SetActive(canRebirth || canGradeUp);
                 
-                // Change text if possible (assuming there is a text component inside)
                 var btnText = rebirthButton.GetComponentInChildren<TextMeshProUGUI>();
                 if (btnText != null)
                 {
