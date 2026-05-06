@@ -102,6 +102,8 @@ Este documento sirve como hoja de ruta viva para el desarrollo. Marcar las casil
 - [x] **Progresión (Vertical Slice Scope)**
     - [x] Drop de "Esencia Maldita" al matar enemigos.
     - [x] Implementar recolección (imán de esencia).
+    - [x] Habilidad: Downslam (Ataque aéreo de área con Left Ctrl).
+    - [x] Sistema de Grados (De Grado 4 a Grado Especial).
     - [ ] Menú simple de mejora de habilidades (Mockup funcional).
 - [ ] **Puntos de Guardado**
     - [ ] Implementar "Santuarios" o puntos de control que guarden estado básico (Vida, Posición).

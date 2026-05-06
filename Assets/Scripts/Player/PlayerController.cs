@@ -40,6 +40,7 @@ public class PlayerController : MonoBehaviour
     private bool isRunning;
     private float currentSpeed;
     private bool isDashing;
+    private bool isFrozen;
     private float dashTimer;
     private float dashCooldownTimer;
     private float coyoteTimer;
@@ -49,6 +50,8 @@ public class PlayerController : MonoBehaviour
     // ── References ────────────────────────────────────────────────────────────
     private Rigidbody rb;
     private Animator animator;
+    private Renderer rend;
+    private Color originalColor;
 
     // ── Unity Lifecycle ───────────────────────────────────────────────────────
 
@@ -56,6 +59,8 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         animator = GetComponentInChildren<Animator>();
+        rend = GetComponentInChildren<Renderer>();
+        if (rend) originalColor = rend.material.color;
 
         rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionZ;
         rb.useGravity = true;
@@ -95,6 +100,12 @@ public class PlayerController : MonoBehaviour
 
     private void HandleMove(Vector2 input)
     {
+        if (isFrozen)
+        {
+            moveInput = Vector2.zero;
+            return;
+        }
+
         moveInput = input;
 
         // Flip model based on direction
@@ -108,18 +119,21 @@ public class PlayerController : MonoBehaviour
 
     private void HandleJumpStarted()
     {
+        if (isFrozen) return;
         // Siempre activar el buffer; TryJump decide si se puede saltar
         jumpBufferTimer = jumpBufferTime;
     }
 
     private void HandleDashStarted()
     {
+        if (isFrozen) return;
         if (!isDashing && dashCooldownTimer <= 0f && moveInput.magnitude > 0)
             StartDash();
     }
 
     private void HandleSprintToggle()
     {
+        if (isFrozen) return;
         isRunning = !isRunning;
         currentSpeed = isRunning ? runSpeed : walkSpeed;
         Debug.Log(isRunning ? "<color=green>[Movement]</color> Running Mode" : "<color=yellow>[Movement]</color> Walking Mode");
@@ -140,7 +154,7 @@ public class PlayerController : MonoBehaviour
         HandleCoyoteTime();
         ResetJumpsOnLanding();
 
-        if (!isDashing)
+        if (!isDashing && !isFrozen)
             Move();
 
         HandleJumpBuffer();
@@ -152,6 +166,40 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 targetVelocity = new Vector3(moveInput.x * currentSpeed, rb.linearVelocity.y, 0);
         rb.linearVelocity = targetVelocity;
+    }
+
+    public void Freeze(float duration)
+    {
+        if (gameObject.activeInHierarchy)
+            StartCoroutine(FreezeRoutine(duration));
+    }
+
+    private System.Collections.IEnumerator FreezeRoutine(float duration)
+    {
+        if (isFrozen) yield break;
+
+        isFrozen = true;
+        moveInput = Vector2.zero;
+        
+        // Visual feedback
+        if (rend) rend.material.color = new Color(0.5f, 0.8f, 1f); // Celeste/Hielo
+        
+        // Stop movement
+        rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+
+        yield return new WaitForSeconds(duration);
+
+        if (rend) rend.material.color = originalColor;
+        isFrozen = false;
+    }
+
+    public bool IsFrozen => isFrozen;
+    public bool IsGrounded => isGrounded;
+
+    public void InitiateDownslam(float force)
+    {
+        if (isFrozen) return;
+        rb.linearVelocity = new Vector3(0, -force, 0);
     }
 
     private void Jump()

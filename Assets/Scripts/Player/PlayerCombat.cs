@@ -27,20 +27,28 @@ public class PlayerCombat : MonoBehaviour
     [SerializeField] private float comboStep2Damage = 15f;
     [SerializeField] private float comboStep3Damage = 25f;
     [SerializeField] private float heavyAttackDamage = 80f;
+    [SerializeField] private float downslamDamage = 7f;
 
     [Header("Energy Costs")]
     [SerializeField] private float attackEnergyCost = 8f; // Coste adicional por cada swing
     [SerializeField] private float heavyAttackEnergyCost = 60f; // Coste mucho más alto
+    [SerializeField] private float downslamEnergyCost = 15f;
+
+    [Header("Downslam Settings")]
+    [SerializeField] private float downslamCooldown = 2.0f;
+    [SerializeField] private float downslamRadius = 3.5f;
 
     // ── State ─────────────────────────────────────────────────────────────────
     private int currentComboStep = 0;
     private float lastAttackTime;
     private float lastHeavyAttackTime;
+    private float lastDownslamTime;
     private float comboCooldownEndTime;
     private bool isBlocking;
     private Renderer rend;
     private Color originalColor;
     private Animator animator;
+    private PlayerController playerController;
 
     private void Awake()
     {
@@ -50,6 +58,8 @@ public class PlayerCombat : MonoBehaviour
 
         if (playerEnergy == null)
             playerEnergy = GetComponent<VeinsOfMalice.Player.PlayerEnergy>();
+        
+        playerController = GetComponent<PlayerController>();
     }
 
     private void OnEnable()
@@ -60,6 +70,7 @@ public class PlayerCombat : MonoBehaviour
         inputReader.OnBlockStarted  += HandleBlockStarted;
         inputReader.OnBlockCanceled += HandleBlockCanceled;
         inputReader.OnHeavyAttackStarted += HandleHeavyAttack;
+        inputReader.OnDownslamStarted += HandleDownslam;
     }
 
     private void OnDisable()
@@ -70,6 +81,7 @@ public class PlayerCombat : MonoBehaviour
         inputReader.OnBlockStarted  -= HandleBlockStarted;
         inputReader.OnBlockCanceled -= HandleBlockCanceled;
         inputReader.OnHeavyAttackStarted -= HandleHeavyAttack;
+        inputReader.OnDownslamStarted -= HandleDownslam;
     }
 
     private void Update()
@@ -85,13 +97,8 @@ public class PlayerCombat : MonoBehaviour
 
     private void HandleAttack()
     {
-        if (isBlocking) return; // No se puede atacar mientras bloqueas
-        if (Time.time < comboCooldownEndTime)
-        {
-            // Opcional: Un log para ti si el cooldown está activo
-            // Debug.Log("<color=orange>[Combo Cooldown] Wait for cooldown...</color>");
-            return;
-        }
+        if (isBlocking || (playerController != null && playerController.IsFrozen)) return; // No se puede atacar mientras bloqueas o estás congelado
+        if (Time.time < comboCooldownEndTime) return;
         if (Time.time - lastAttackTime < attackCooldown) return;
 
         Attack();
@@ -99,7 +106,7 @@ public class PlayerCombat : MonoBehaviour
 
     private void HandleHeavyAttack()
     {
-        if (isBlocking) return;
+        if (isBlocking || (playerController != null && playerController.IsFrozen)) return;
         if (Time.time - lastHeavyAttackTime < heavyAttackCooldown)
         {
             Debug.Log("<color=orange>[Heavy Attack] Cooldown active...</color>");
@@ -109,8 +116,32 @@ public class PlayerCombat : MonoBehaviour
         HeavyAttack();
     }
 
+    private void HandleDownslam()
+    {
+        Debug.Log("<color=white>[Combat]</color> HandleDownslam called from Input!");
+        if (isBlocking) 
+        {
+            Debug.Log("<color=yellow>[Combat]</color> Downslam blocked: currently blocking.");
+            return;
+        }
+        if (playerController != null && playerController.IsFrozen)
+        {
+            Debug.Log("<color=yellow>[Combat]</color> Downslam blocked: player is frozen.");
+            return;
+        }
+        if (Time.time - lastDownslamTime < downslamCooldown)
+        {
+            Debug.Log("<color=yellow>[Combat]</color> Downslam blocked: cooldown active.");
+            return;
+        }
+
+        Downslam();
+    }
+
     private void HandleBlockStarted()
     {
+        if (playerController != null && playerController.IsFrozen) return;
+        
         isBlocking = true;
         if (animator) animator.SetBool("IsBlocking", true);
         if (rend) rend.material.color = new Color(0.2f, 0.5f, 1f); // Azul claro para bloqueo
@@ -123,6 +154,15 @@ public class PlayerCombat : MonoBehaviour
         if (animator) animator.SetBool("IsBlocking", false);
         if (rend) rend.material.color = originalColor;
         Debug.Log("[PlayerCombat] Blocking Ended");
+    }
+
+    public void BreakShield()
+    {
+        if (isBlocking)
+        {
+            HandleBlockCanceled();
+            Debug.Log("<color=red><b>[SHIELD BROKEN]</b></color>");
+        }
     }
 
     // ── Combat Logic ──────────────────────────────────────────────────────────
@@ -160,7 +200,7 @@ public class PlayerCombat : MonoBehaviour
     private void HeavyAttack()
     {
         lastHeavyAttackTime = Time.time;
-        lastAttackTime = Time.time; // También cuenta como ataque para el combo
+        comboCooldownEndTime = 0f; // Asegurar que el cooldown del combo se limpie al usar un golpe fuerte
         ResetCombo();
 
         Debug.Log("<color=magenta><b>[HEAVY ATTACK]</b></color> Massive Energy Slash!");
@@ -176,6 +216,90 @@ public class PlayerCombat : MonoBehaviour
         }
 
         StartCoroutine(PerformAttackDetection(true));
+    }
+
+    private void Downslam()
+    {
+        if (playerController != null && playerController.IsGrounded)
+        {
+            Debug.Log("<color=yellow>[Combat]</color> Downslam requires being in the air!");
+            return;
+        }
+
+        StartCoroutine(DownslamRoutine());
+    }
+
+    private IEnumerator DownslamRoutine()
+    {
+        lastDownslamTime = Time.time;
+        Debug.Log("<color=orange><b>[DOWNSLAM]</b></color> Slamming down!");
+
+        // Caída rápida
+        float slamSpeed = 25f;
+        while (playerController != null && !playerController.IsGrounded)
+        {
+            playerController.InitiateDownslam(slamSpeed);
+            yield return null;
+        }
+
+        // IMPACTO AL LLEGAR AL SUELO
+        Debug.Log("<color=red><b>[DOWNSLAM IMPACT]</b></color>");
+
+        if (animator) animator.SetTrigger("Downslam");
+
+        if (playerEnergy != null && playerEnergy.IsEnergyModeActive)
+        {
+            playerEnergy.UseEnergy(downslamEnergyCost);
+        }
+
+        // Camera Shake
+        CameraController cam = Camera.main != null ? Camera.main.GetComponent<CameraController>() : null;
+        if (cam != null) cam.Shake();
+
+        // Detectar enemigos en un círculo alrededor del jugador
+        Collider[] hits = Physics.OverlapSphere(transform.position, downslamRadius, enemyLayer);
+        bool isCursed = playerEnergy != null && playerEnergy.IsEnergyModeActive;
+
+        foreach (var hit in hits)
+        {
+            if (hit.transform.root == transform.root) continue;
+
+            // Saltar dummies
+            if (hit.GetComponentInParent<BlockingDummy>() != null) continue;
+
+            if (hit.TryGetComponent<IDamageable>(out var damageable))
+            {
+                float damage = isCursed ? 10f : downslamDamage;
+                Vector3 dir = (hit.transform.position - transform.position).normalized;
+                Color? overrideColor = isCursed ? new Color(0.5f, 0.2f, 1f) : new Color(1f, 0.5f, 0f); 
+                damageable.TakeDamage(damage, dir, overrideColor, false, isCursed);
+                
+                // Aplicar empuje (Knockback) si tiene motor de enemigo
+                if (hit.TryGetComponent<VeinsOfMalice.AI.EnemyMotor>(out var motor))
+                {
+                    Debug.Log($"<color=cyan>[Combat]</color> Applying knockback to {hit.name}");
+                    Vector3 knockbackForce = (dir + Vector3.up * 0.7f).normalized * 1000f; // Fuerza aumentada para masa 50
+                    motor.ApplyKnockback(knockbackForce);
+                }
+                else if (hit.transform.parent != null && hit.transform.parent.TryGetComponent<VeinsOfMalice.AI.EnemyMotor>(out var parentMotor))
+                {
+                    Debug.Log($"<color=cyan>[Combat]</color> Applying knockback to parent {hit.transform.parent.name}");
+                    Vector3 knockbackForce = (dir + Vector3.up * 0.7f).normalized * 1000f;
+                    parentMotor.ApplyKnockback(knockbackForce);
+                }
+            }
+        }
+        
+        // Visual feedback
+        if (rend) StartCoroutine(DownslamFlash());
+    }
+
+    private IEnumerator DownslamFlash()
+    {
+        Color flashColor = new Color(1f, 0.8f, 0.2f);
+        rend.material.color = flashColor;
+        yield return new WaitForSeconds(0.15f);
+        rend.material.color = isBlocking ? new Color(0.2f, 0.5f, 1f) : originalColor;
     }
 
     private IEnumerator PerformAttackDetection(bool isHeavy)
@@ -204,7 +328,8 @@ public class PlayerCombat : MonoBehaviour
         }
 
         // Aplicar multiplicador si el modo Energía Maldita está activo
-        if (playerEnergy != null && playerEnergy.IsEnergyModeActive)
+        bool isCursed = playerEnergy != null && playerEnergy.IsEnergyModeActive;
+        if (isCursed)
         {
             float multiplier = isHeavy ? 1.75f : 1.25f;
             damage *= multiplier;
@@ -213,13 +338,15 @@ public class PlayerCombat : MonoBehaviour
 
         foreach (var hit in hits)
         {
-            // Evitar que el jugador se golpee a sí mismo si está en la misma capa
-            if (hit.gameObject == gameObject) continue;
+            // Evitar que el jugador se golpee a sí mismo (revisando si el collider pertenece a nuestro propio objeto o hijos)
+            if (hit.transform.root == transform.root) continue;
 
             if (hit.TryGetComponent<IDamageable>(out var damageable))
             {
                 Vector3 dir = (hit.transform.position - transform.position).normalized;
-                damageable.TakeDamage(damage, dir);
+                
+                Color? overrideColor = isCursed ? new Color(0.5f, 0.2f, 1f) : null; // Púrpura azulado si está en modo energía
+                damageable.TakeDamage(damage, dir, overrideColor, isHeavy, isCursed);
             }
         }
     }

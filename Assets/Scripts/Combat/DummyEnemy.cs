@@ -18,14 +18,15 @@ public class DummyEnemy : MonoBehaviour, IDamageable
         if (rend) originalColor = rend.material.color;
     }
 
-    public void TakeDamage(float amount, Vector3 hitDirection)
+    public void TakeDamage(float amount, Vector3 hitDirection, Color? overrideColor = null, bool isHeavy = false, bool isCursed = false)
     {
         health -= amount;
         Debug.Log($"[DummyEnemy] Hit! Damage: {amount}. Health remaining: {health}");
         
         if (VeinsOfMalice.UI.DamageNumberManager.Instance != null)
         {
-            VeinsOfMalice.UI.DamageNumberManager.Instance.SpawnDamageNumber(transform.position, amount, Color.red);
+            Color damageColor = overrideColor ?? Color.red;
+            VeinsOfMalice.UI.DamageNumberManager.Instance.SpawnDamageNumber(transform.position, amount, damageColor);
         }
 
         if (rend) StartCoroutine(FlashColor());

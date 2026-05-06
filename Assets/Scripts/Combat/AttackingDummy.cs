@@ -63,14 +63,15 @@ public class AttackingDummy : MonoBehaviour, IDamageable
         if (rend) rend.material.color = originalColor;
     }
 
-    public void TakeDamage(float amount, Vector3 hitDirection)
+    public void TakeDamage(float amount, Vector3 hitDirection, Color? overrideColor = null, bool isHeavy = false, bool isCursed = false)
     {
         health -= amount;
         Debug.Log($"[AttackingDummy] Ouch! Received {amount} damage. HP: {health}");
         
         if (VeinsOfMalice.UI.DamageNumberManager.Instance != null)
         {
-            VeinsOfMalice.UI.DamageNumberManager.Instance.SpawnDamageNumber(transform.position, amount, Color.red);
+            Color damageColor = overrideColor ?? Color.red;
+            VeinsOfMalice.UI.DamageNumberManager.Instance.SpawnDamageNumber(transform.position, amount, damageColor);
         }
 
         StartCoroutine(FlashColor(hitColor));

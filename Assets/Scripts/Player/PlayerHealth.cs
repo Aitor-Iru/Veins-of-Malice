@@ -23,6 +23,8 @@ public class PlayerHealth : MonoBehaviour, IDamageable
 
     private float invulnerabilityTimer;
     private PlayerCombat playerCombat;
+    private VeinsOfMalice.Player.PlayerEnergy playerEnergy;
+    private PlayerController playerController;
     private CameraController camController;
     private Renderer rend;
     private Color originalColor;
@@ -34,12 +36,12 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     {
         CurrentHealth = maxHealth;
         playerCombat = GetComponent<PlayerCombat>();
+        playerEnergy = GetComponent<VeinsOfMalice.Player.PlayerEnergy>();
+        playerController = GetComponent<PlayerController>();
         camController = Camera.main != null ? Camera.main.GetComponent<CameraController>() : null;
         rend = GetComponentInChildren<Renderer>();
         if (rend) originalColor = rend.material.color;
     }
-
-
 
     private void Update()
     {
@@ -60,15 +62,42 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         }
     }
 
-    public void TakeDamage(float amount, Vector3 hitDirection)
+    public void TakeDamage(float amount, Vector3 hitDirection, Color? overrideColor = null, bool isHeavy = false, bool isCursed = false)
     {
         if (IsInvulnerable || amount <= 0f) return;
+
+        bool isPerfectBlock = false;
+        bool shieldBroken = false;
 
         // Reducir daño si bloquea
         if (playerCombat != null && playerCombat.IsBlocking)
         {
-            amount *= (1f - blockDamageReduction);
-            Debug.Log($"[PlayerHealth] Damage blocked! Reduced to {amount}");
+            if (isHeavy)
+            {
+                // Escudo Roto por golpe pesado
+                playerCombat.BreakShield();
+                shieldBroken = true;
+                amount = 0f; // El golpe que rompe el escudo no hace daño a la vida (según propuesta aceptada)
+                
+                if (isCursed && playerController != null)
+                {
+                    playerController.Freeze(2.0f);
+                    Debug.Log("<color=blue><b>[FROZEN]</b></color> Target frozen for 2.0s!");
+                }
+            }
+            else if (playerEnergy != null && playerEnergy.IsEnergyModeActive)
+            {
+                // Bloqueo Perfecto con Energía Maldita
+                amount = 0f;
+                playerEnergy.UseEnergy(playerEnergy.MaxEnergy * 0.15f);
+                isPerfectBlock = true;
+                Debug.Log("<color=black><b>[PERFECT BLOCK]</b></color> Damage nullified by Cursed Energy!");
+            }
+            else
+            {
+                amount *= (1f - blockDamageReduction);
+                Debug.Log($"[PlayerHealth] Damage blocked! Reduced to {amount}");
+            }
         }
 
         CurrentHealth = Mathf.Max(0f, CurrentHealth - amount);
@@ -76,13 +105,30 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         OnHealthChanged?.Invoke(CurrentHealth, maxHealth);
 
         // Feedback de daño
-        Debug.Log($"<color=red><b>[PLAYER HIT]</b></color> Damage: {amount} | Health: {CurrentHealth}");
+        if (!shieldBroken)
+            Debug.Log($"<color=red><b>[PLAYER HIT]</b></color> Damage: {amount} | Health: {CurrentHealth}");
+        
         if (camController != null) camController.Shake();
 
         // Spawn Damage Number
         if (VeinsOfMalice.UI.DamageNumberManager.Instance != null)
         {
-            VeinsOfMalice.UI.DamageNumberManager.Instance.SpawnDamageNumber(transform.position, amount, Color.red);
+            if (shieldBroken)
+            {
+                VeinsOfMalice.UI.DamageNumberManager.Instance.SpawnDamageNumber(transform.position, isCursed ? "FROZEN!" : "SHIELD BREAK!", Color.yellow);
+            }
+            else if (isPerfectBlock)
+            {
+                VeinsOfMalice.UI.DamageNumberManager.Instance.SpawnDamageNumber(transform.position, "PERFECT BLOCK", Color.black);
+            }
+            else
+            {
+                Color damageColor;
+                if (overrideColor.HasValue) damageColor = overrideColor.Value;
+                else damageColor = (playerCombat != null && playerCombat.IsBlocking) ? new Color(0.4f, 0.9f, 1f) : Color.red; // Celeste si bloquea, Rojo si no
+                
+                VeinsOfMalice.UI.DamageNumberManager.Instance.SpawnDamageNumber(transform.position, amount, damageColor);
+            }
         }
         
         Color flashColor = (playerCombat != null && playerCombat.IsBlocking) ? new Color(1f, 0.5f, 0f) : Color.red; // Naranja si bloquea, Rojo si no

@@ -121,6 +121,7 @@ namespace VeinsOfMalice.Player
 
         // ── Public API ────────────────────────────────────────────────────────────
         public bool IsEnergyModeActive => isEnergyModeActive;
+        public float MaxEnergy => maxEnergy;
         public float CurrentEnergyNormalized => currentEnergy / maxEnergy;
 
         /// <summary>
@@ -139,6 +140,14 @@ namespace VeinsOfMalice.Player
             {
                 SetEnergyMode(false);
             }
+        }
+
+        public void UpgradeMaxEnergy(float extraEnergy)
+        {
+            maxEnergy += extraEnergy;
+            currentEnergy += extraEnergy; // Llenar con la nueva energía
+            OnEnergyChanged?.Invoke(currentEnergy, maxEnergy);
+            Debug.Log($"<color=green>[PlayerEnergy]</color> Max energy upgraded to {maxEnergy}!");
         }
     }
 }

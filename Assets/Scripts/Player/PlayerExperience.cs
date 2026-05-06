@@ -1,10 +1,19 @@
 using UnityEngine;
 using System;
 
-namespace VeinsOfMalice.Player
-{
+    public enum PlayerGrade
+    {
+        Grade4,
+        Grade3,
+        SemiGrade2,
+        Grade2,
+        SemiGrade1,
+        Grade1,
+        SpecialGrade
+    }
+
     /// <summary>
-    /// PlayerExperience — Gestiona los niveles y la cantidad de XP del jugador.
+    /// PlayerExperience — Gestiona los niveles, la cantidad de XP y el Grado del jugador.
     /// </summary>
     public class PlayerExperience : MonoBehaviour
     {
@@ -17,26 +26,35 @@ namespace VeinsOfMalice.Player
         [Header("Current State")]
         [SerializeField] private int currentLevel = 1;
         [SerializeField] private int currentXP = 0;
+        [SerializeField] private PlayerGrade currentGrade = PlayerGrade.Grade4;
+        
+        private PlayerEnergy playerEnergy;
 
         // ── Events ────────────────────────────────────────────────────────────────
         public event Action<int, int> OnXPChanged;       // parameters: currentXP, xpToNextLevel
         public event Action<int> OnLevelChanged;         // parameter: newLevel
+        public event Action<PlayerGrade> OnGradeChanged; // parameter: newGrade
+        public event Action OnGradeUpEvent;              // Se dispara al subir de grado
 
         public int CurrentLevel => currentLevel;
         public int CurrentXP => currentXP;
         public int XPPerLevel => xpPerLevel;
         public int MaxLevel => maxLevel;
+        public PlayerGrade CurrentGrade => currentGrade;
 
         private void Start()
         {
+            playerEnergy = GetComponent<PlayerEnergy>();
+            
             // Initial UI trigger
             OnXPChanged?.Invoke(currentXP, xpPerLevel);
             OnLevelChanged?.Invoke(currentLevel);
+            OnGradeChanged?.Invoke(currentGrade);
         }
 
         public void AddXP(int amount)
         {
-            if (currentLevel >= maxLevel) return; // Ya está al nivel máximo
+            if (currentLevel >= AbsoluteMaxLevel && currentGrade == PlayerGrade.SpecialGrade) return;
 
             currentXP += amount;
             Debug.Log($"<color=cyan>[XP]</color> Gained {amount} XP. Total: {currentXP}/{xpPerLevel}");
@@ -44,18 +62,25 @@ namespace VeinsOfMalice.Player
             bool leveledUp = false;
 
             // Bucle en caso de que gane mucha experiencia de una sola vez
-            while (currentXP >= xpPerLevel && currentLevel < maxLevel)
+            while (currentXP >= xpPerLevel && currentLevel < AbsoluteMaxLevel)
             {
                 currentXP -= xpPerLevel;
                 currentLevel++;
                 leveledUp = true;
                 Debug.Log($"<color=green>[Level Up!]</color> Reached Level {currentLevel}");
+
+                // Si llegamos a 500, intentamos Grade Up
+                if (currentLevel == AbsoluteMaxLevel)
+                {
+                    Debug.Log("<color=yellow>[XP]</color> Reached Level 500! Grade Up available.");
+                    break; 
+                }
             }
 
-            // Si tras el bucle somos nivel máximo, capamos la XP
+            // Si somos nivel máximo de este tramo, capamos XP
             if (currentLevel >= maxLevel)
             {
-                currentXP = xpPerLevel; // Se queda llena visualmente
+                currentXP = Mathf.Max(currentXP, 0); // No resetear a menos que subamos grado
             }
 
             if (leveledUp)
@@ -68,10 +93,22 @@ namespace VeinsOfMalice.Player
 
         public bool TryRebirth()
         {
+            // Si llegamos al nivel 500, hacemos GRADE UP en lugar de Rebirth normal
+            if (currentLevel >= AbsoluteMaxLevel)
+            {
+                return TryGradeUp();
+            }
+
             if (currentLevel >= maxLevel && maxLevel < AbsoluteMaxLevel)
             {
                 maxLevel += 100;
                 if (maxLevel > AbsoluteMaxLevel) maxLevel = AbsoluteMaxLevel;
+                
+                // Aumentar Energía Maldita en 50 por cada Rebirth
+                if (playerEnergy != null)
+                {
+                    playerEnergy.UpgradeMaxEnergy(50f);
+                }
                 
                 Debug.Log($"<color=magenta>[Rebirth]</color> Rebirth successful! New Max Level: {maxLevel}");
                 
@@ -81,6 +118,44 @@ namespace VeinsOfMalice.Player
                 return true;
             }
             return false;
+        }
+
+        public bool TryGradeUp()
+        {
+            if (currentLevel < AbsoluteMaxLevel) return false;
+            if (currentGrade == PlayerGrade.SpecialGrade) return false;
+
+            // Subir grado
+            currentGrade++;
+            
+            // Reiniciar progreso
+            currentLevel = 1;
+            currentXP = 0;
+            maxLevel = 100; // El Rebirth vuelve a empezar para el nuevo grado
+
+            Debug.Log($"<color=gold><b>[GRADE UP!]</b></color> New Grade: {currentGrade}");
+
+            OnGradeChanged?.Invoke(currentGrade);
+            OnLevelChanged?.Invoke(currentLevel);
+            OnXPChanged?.Invoke(currentXP, xpPerLevel);
+            OnGradeUpEvent?.Invoke();
+
+            return true;
+        }
+
+        public string GetGradeName()
+        {
+            switch (currentGrade)
+            {
+                case PlayerGrade.Grade4: return "GRADE 4";
+                case PlayerGrade.Grade3: return "GRADE 3";
+                case PlayerGrade.Grade2: return "GRADE 2";
+                case PlayerGrade.SemiGrade2: return "SEMI-GRADE 2";
+                case PlayerGrade.SemiGrade1: return "SEMI-GRADE 1";
+                case PlayerGrade.Grade1: return "GRADE 1";
+                case PlayerGrade.SpecialGrade: return "SPECIAL GRADE";
+                default: return "UNKNOWN";
+            }
         }
     }
 }

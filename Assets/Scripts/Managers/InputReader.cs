@@ -29,6 +29,7 @@ public class InputReader : ScriptableObject
     public event Action          OnToggleEnergyStarted;
     public event Action          OnSprintStarted;
     public event Action          OnInventoryToggleStarted;
+    public event Action          OnDownslamStarted;
 
     // ── UI Events ─────────────────────────────────────────────────────────────
     public event Action OnUISubmit;
@@ -51,6 +52,7 @@ public class InputReader : ScriptableObject
     private InputAction _toggleEnergy;
     private InputAction _sprint;
     private InputAction _inventory;
+    private InputAction _downslam;
     private InputAction _submit;
     private InputAction _cancel;
 
@@ -81,7 +83,8 @@ public class InputReader : ScriptableObject
         _heavyAttack = _playerMap.FindAction("HeavyAttack", throwIfNotFound: false);
         _toggleEnergy = _playerMap.FindAction("ToggleEnergy", throwIfNotFound: true);
         _sprint = _playerMap.FindAction("Sprint", throwIfNotFound: true);
-        _inventory = _playerMap.FindAction("Inventory", throwIfNotFound: false); // Use false to avoid crash if not added yet
+        _inventory = _playerMap.FindAction("Inventory", throwIfNotFound: false); 
+        _downslam = _playerMap.FindAction("Downslam", throwIfNotFound: false);
 
         // Bind UI actions
         _submit = _uiMap.FindAction("Submit", throwIfNotFound: true);
@@ -102,6 +105,15 @@ public class InputReader : ScriptableObject
         _toggleEnergy.started += OnToggleEnergy;
         _sprint.started += OnSprint;
         if (_inventory != null) _inventory.started += OnInventoryToggle;
+        if (_downslam != null) 
+        {
+            _downslam.started += OnDownslam;
+            Debug.Log("<color=green>[InputReader]</color> Downslam action found and bound.");
+        }
+        else
+        {
+            Debug.LogWarning("<color=red>[InputReader]</color> Downslam action NOT FOUND in Player map!");
+        }
         _submit.started  += OnSubmit;
         _cancel.started  += OnCancel;
 
@@ -126,6 +138,7 @@ public class InputReader : ScriptableObject
         _toggleEnergy.started -= OnToggleEnergy;
         _sprint.started -= OnSprint;
         if (_inventory != null) _inventory.started -= OnInventoryToggle;
+        if (_downslam != null) _downslam.started -= OnDownslam;
         _submit.started  -= OnSubmit;
         _cancel.started  -= OnCancel;
 
@@ -201,6 +214,12 @@ public class InputReader : ScriptableObject
 
     private void OnInventoryToggle(InputAction.CallbackContext ctx)
         => OnInventoryToggleStarted?.Invoke();
+
+    private void OnDownslam(InputAction.CallbackContext ctx)
+    {
+        Debug.Log("<color=white>[InputReader]</color> Downslam action TRIGGERED!");
+        OnDownslamStarted?.Invoke();
+    }
 
     // ── Fallback loader (Editor only) ─────────────────────────────────────────
 

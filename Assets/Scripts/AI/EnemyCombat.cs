@@ -57,5 +57,12 @@ namespace VeinsOfMalice.AI
         }
 
         public float GetAttackRange() => attackRange;
+
+        public bool IsTargetInRange(Transform target)
+        {
+            if (target == null) return false;
+            float distance = Vector3.Distance(transform.position, target.position);
+            return distance <= attackRange;
+        }
     }
 }

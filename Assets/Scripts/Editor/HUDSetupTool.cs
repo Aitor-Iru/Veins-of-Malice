@@ -122,7 +122,82 @@ namespace VeinsOfMalice.Editor
             // 9. Create Inventory UI
             CreateInventoryPanel(canvasObj.transform);
 
-            Debug.Log("<color=green>[The Robot]</color> HUD and Inventory setup complete!");
+            // 10. Create Pause Menu and Grade Display
+            GameObject pausePanel = CreatePauseMenu(canvasObj.transform);
+
+            // 11. Setup GameUIManager
+            GameUIManager uiManager = canvasObj.AddComponent<GameUIManager>();
+            SerializedObject soUI = new SerializedObject(uiManager);
+            soUI.FindProperty("pausePanel").objectReferenceValue = pausePanel;
+            // (Assuming other panels like GameOver are handled elsewhere or manually for now)
+            soUI.ApplyModifiedProperties();
+
+            Debug.Log("<color=green>[The Robot]</color> HUD, Inventory, and Pause Menu (Grade) setup complete!");
+        }
+
+        private static GameObject CreatePauseMenu(Transform parent)
+        {
+            GameObject pauseObj = new GameObject("Pause_Menu", typeof(RectTransform));
+            pauseObj.transform.SetParent(parent, false);
+            RectTransform pauseRect = pauseObj.GetComponent<RectTransform>();
+            pauseRect.anchorMin = Vector2.zero;
+            pauseRect.anchorMax = Vector2.one;
+            pauseRect.sizeDelta = Vector2.zero;
+
+            // Dim Background
+            GameObject bgObj = new GameObject("Background_Dim", typeof(RectTransform), typeof(Image));
+            bgObj.transform.SetParent(pauseObj.transform, false);
+            bgObj.GetComponent<Image>().color = new Color(0, 0, 0, 0.6f);
+            bgObj.GetComponent<RectTransform>().anchorMin = Vector2.zero;
+            bgObj.GetComponent<RectTransform>().anchorMax = Vector2.one;
+            bgObj.GetComponent<RectTransform>().sizeDelta = Vector2.zero;
+
+            // Grade Display (Top-Right)
+            GameObject gradeContainer = new GameObject("Grade_Display", typeof(RectTransform));
+            gradeContainer.transform.SetParent(pauseObj.transform, false);
+            RectTransform gradeRect = gradeContainer.GetComponent<RectTransform>();
+            gradeRect.anchorMin = new Vector2(1, 1);
+            gradeRect.anchorMax = new Vector2(1, 1);
+            gradeRect.pivot = new Vector2(1, 1);
+            gradeRect.anchoredPosition = new Vector2(-40, -40);
+            gradeRect.sizeDelta = new Vector2(300, 60);
+
+            // Grade Label
+            GameObject labelObj = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
+            labelObj.transform.SetParent(gradeContainer.transform, false);
+            TextMeshProUGUI labelText = labelObj.GetComponent<TextMeshProUGUI>();
+            labelText.text = "CURRENT GRADE";
+            labelText.fontSize = 18;
+            labelText.color = new Color(1, 1, 1, 0.6f);
+            labelText.alignment = TextAlignmentOptions.Right;
+            labelObj.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 20);
+
+            // Grade Name
+            GameObject nameObj = new GameObject("GradeName", typeof(RectTransform), typeof(TextMeshProUGUI));
+            nameObj.transform.SetParent(gradeContainer.transform, false);
+            TextMeshProUGUI gradeNameText = nameObj.GetComponent<TextMeshProUGUI>();
+            gradeNameText.text = "GRADE 4";
+            gradeNameText.fontSize = 36;
+            gradeNameText.fontStyle = FontStyles.Bold;
+            gradeNameText.alignment = TextAlignmentOptions.Right;
+            nameObj.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -10);
+
+            // Add GradeUI logic
+            GradeUI gradeUI = gradeContainer.AddComponent<GradeUI>();
+            SerializedObject soGrade = new SerializedObject(gradeUI);
+            soGrade.FindProperty("gradeText").objectReferenceValue = gradeNameText;
+            soGrade.ApplyModifiedProperties();
+
+            // Central Pause Text
+            GameObject pauseTextObj = new GameObject("PauseTitle", typeof(RectTransform), typeof(TextMeshProUGUI));
+            pauseTextObj.transform.SetParent(pauseObj.transform, false);
+            TextMeshProUGUI pauseText = pauseTextObj.GetComponent<TextMeshProUGUI>();
+            pauseText.text = "PAUSA";
+            pauseText.fontSize = 64;
+            pauseText.alignment = TextAlignmentOptions.Center;
+
+            pauseObj.SetActive(false);
+            return pauseObj;
         }
 
         private static void CreateInventoryPanel(Transform parent)

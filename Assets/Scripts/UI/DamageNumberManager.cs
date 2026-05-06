@@ -29,19 +29,23 @@ namespace VeinsOfMalice.UI
 
         public void SpawnDamageNumber(Vector3 worldPosition, float amount, Color color)
         {
+            SpawnDamageNumber(worldPosition, Mathf.RoundToInt(amount).ToString(), color);
+        }
+
+        public void SpawnDamageNumber(Vector3 worldPosition, string message, Color color)
+        {
             if (damageTextPrefab == null) return;
 
             GameObject obj = Instantiate(damageTextPrefab, worldPosition + spawnOffset, Quaternion.identity);
-            obj.SetActive(true); // Asegurarse de que el objeto esté activado al instanciarse
+            obj.SetActive(true);
             TextMeshPro text = obj.GetComponentInChildren<TextMeshPro>(true);
             
             if (text != null)
             {
-                text.text = Mathf.RoundToInt(amount).ToString();
+                text.text = message;
                 text.color = color;
             }
 
-            // Undertale-style bouncy animation
             StartCoroutine(AnimateDamageNumber(obj, text));
         }
 

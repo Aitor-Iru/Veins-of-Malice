@@ -10,5 +10,5 @@ public interface IDamageable
     /// </summary>
     /// <param name="amount">Cantidad de daño.</param>
     /// <param name="hitDirection">Dirección del impacto (para knockback).</param>
-    void TakeDamage(float amount, Vector3 hitDirection);
+    void TakeDamage(float amount, Vector3 hitDirection, Color? overrideColor = null, bool isHeavy = false, bool isCursed = false);
 }

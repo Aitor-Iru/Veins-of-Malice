@@ -26,7 +26,7 @@ namespace VeinsOfMalice.AI.States
                 return;
             }
 
-            if (controller.Combat.CanAttack(controller.Target))
+            if (controller.Combat.IsTargetInRange(controller.Target))
             {
                 controller.TransitionToState(new AttackState(controller));
                 return;

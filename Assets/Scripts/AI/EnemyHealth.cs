@@ -27,7 +27,7 @@ namespace VeinsOfMalice.AI
             if (rend) originalColor = rend.material.color;
         }
 
-        public void TakeDamage(float amount, Vector3 hitDirection)
+        public void TakeDamage(float amount, Vector3 hitDirection, Color? overrideColor = null, bool isHeavy = false, bool isCursed = false)
         {
             if (isDead) return;
 
@@ -35,12 +35,28 @@ namespace VeinsOfMalice.AI
             Debug.Log($"<color=orange>[EnemyHealth]</color> {gameObject.name} took {amount} damage. HP: {currentHealth}");
 
             if (rend) StopAllCoroutines();
-            if (rend) StartCoroutine(FlashHit());
+            
+            if (isHeavy && isCursed)
+            {
+                StartCoroutine(FreezeEnemy(2.0f));
+            }
+            else if (rend)
+            {
+                StartCoroutine(FlashHit());
+            }
 
             // Spawn Damage Number
             if (VeinsOfMalice.UI.DamageNumberManager.Instance != null)
             {
-                VeinsOfMalice.UI.DamageNumberManager.Instance.SpawnDamageNumber(transform.position, amount, Color.red);
+                if (isHeavy && isCursed)
+                {
+                    VeinsOfMalice.UI.DamageNumberManager.Instance.SpawnDamageNumber(transform.position, "FROZEN!", Color.cyan);
+                }
+                else
+                {
+                    Color damageColor = overrideColor ?? Color.red;
+                    VeinsOfMalice.UI.DamageNumberManager.Instance.SpawnDamageNumber(transform.position, amount, damageColor);
+                }
             }
 
             // Camera Shake on hit
@@ -57,6 +73,14 @@ namespace VeinsOfMalice.AI
         {
             rend.material.color = hitColor;
             yield return new WaitForSeconds(flashDuration);
+            rend.material.color = originalColor;
+        }
+
+        private System.Collections.IEnumerator FreezeEnemy(float duration)
+        {
+            Debug.Log($"<color=cyan>[EnemyHealth]</color> {gameObject.name} is FROZEN!");
+            rend.material.color = Color.cyan;
+            yield return new WaitForSeconds(duration);
             rend.material.color = originalColor;
         }
 

@@ -14,15 +14,24 @@ namespace VeinsOfMalice.AI.States
 
         public override void Update()
         {
-            // After attacking, go back to chase or idle
-            // In a more complex system, we'd wait for animation or a timer
+            if (controller.Target == null)
+            {
+                controller.TransitionToState(new IdleState(controller));
+                return;
+            }
+
+            if (!controller.Combat.IsTargetInRange(controller.Target))
+            {
+                controller.TransitionToState(new ChaseState(controller));
+                return;
+            }
+
+            // Still in range, stop motor and attack if cooldown allows
+            controller.Motor.Stop();
+            
             if (controller.Combat.CanAttack(controller.Target))
             {
                 controller.Combat.PerformAttack(controller.Target);
-            }
-            else
-            {
-                controller.TransitionToState(new ChaseState(controller));
             }
         }
 

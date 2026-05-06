@@ -55,5 +55,13 @@ namespace VeinsOfMalice.AI
         }
         
         public float GetMoveSpeed() => moveSpeed;
+
+        public void ApplyKnockback(Vector3 force)
+        {
+            if (rb != null)
+            {
+                rb.AddForce(force, ForceMode.Impulse);
+            }
+        }
     }
 }
