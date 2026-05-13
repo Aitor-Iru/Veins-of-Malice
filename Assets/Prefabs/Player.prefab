@@ -139,6 +139,7 @@ GameObject:
   - component: {fileID: 7531933031045846535}
   - component: {fileID: 947191594902405524}
   - component: {fileID: 2823802071406625415}
+  - component: {fileID: 1155875887219186802}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -271,8 +272,12 @@ MonoBehaviour:
   comboStep2Damage: 12.5
   comboStep3Damage: 15
   heavyAttackDamage: 50
+  downslamDamage: 7
   attackEnergyCost: 8
   heavyAttackEnergyCost: 40
+  downslamEnergyCost: 15
+  downslamCooldown: 2
+  downslamRadius: 3.5
 --- !u!114 &1869900527471642439
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -352,3 +357,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29ae5f33fafcef143b3fb594f45f3187, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DebugEssenceAdder
+  essenceItemData: {fileID: 0}
+--- !u!114 &1155875887219186802
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8606593825299405992}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0218e31d2aeaa73488de7123fadc3a05, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VeinsOfMalice.Player.PlayerInteraction
+  inputReader: {fileID: 11400000, guid: 86500949fed35a245bffb7f489183230, type: 2}
+  interactionRange: 3
+  interactableLayer:
+    serializedVersion: 2
+    m_Bits: 512

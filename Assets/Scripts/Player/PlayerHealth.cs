@@ -65,6 +65,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     public void TakeDamage(float amount, Vector3 hitDirection, Color? overrideColor = null, bool isHeavy = false, bool isCursed = false)
     {
         if (IsInvulnerable || amount <= 0f) return;
+        if (VeinsOfMalice.UI.DialogueUI.Instance != null && VeinsOfMalice.UI.DialogueUI.Instance.IsDisplaying) return;
 
         bool isPerfectBlock = false;
         bool shieldBroken = false;

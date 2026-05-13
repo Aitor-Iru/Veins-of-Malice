@@ -120,6 +120,8 @@ public class PlayerController : MonoBehaviour
     private void HandleJumpStarted()
     {
         if (isFrozen) return;
+        if (VeinsOfMalice.UI.DialogueUI.Instance != null && VeinsOfMalice.UI.DialogueUI.Instance.IsDisplaying) return;
+        
         // Siempre activar el buffer; TryJump decide si se puede saltar
         jumpBufferTimer = jumpBufferTime;
     }
@@ -127,6 +129,8 @@ public class PlayerController : MonoBehaviour
     private void HandleDashStarted()
     {
         if (isFrozen) return;
+        if (VeinsOfMalice.UI.DialogueUI.Instance != null && VeinsOfMalice.UI.DialogueUI.Instance.IsDisplaying) return;
+
         if (!isDashing && dashCooldownTimer <= 0f && moveInput.magnitude > 0)
             StartDash();
     }

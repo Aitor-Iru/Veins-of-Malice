@@ -31,7 +31,48 @@ namespace VeinsOfMalice.Editor
                 changed = true;
             }
 
-            // 2. Ensure Tag is "Player"
+            // 2. Add and Configure PlayerInteraction
+            PlayerInteraction interact = instance.GetComponent<PlayerInteraction>();
+            if (interact == null)
+            {
+                interact = instance.AddComponent<PlayerInteraction>();
+                Debug.Log("<color=cyan>[PlayerTool]</color> Added PlayerInteraction to Player.");
+                changed = true;
+            }
+
+            // Configure Interaction
+            if (interact != null)
+            {
+                // Find InputReader asset
+                string readerPath = "Assets/Input/InputReader.asset";
+                InputReader reader = AssetDatabase.LoadAssetAtPath<InputReader>(readerPath);
+                
+                // Use SerializedObject to set private fields safely
+                SerializedObject so = new SerializedObject(interact);
+                
+                if (reader != null)
+                {
+                    so.FindProperty("inputReader").objectReferenceValue = reader;
+                    Debug.Log("<color=cyan>[PlayerTool]</color> Assigned InputReader to PlayerInteraction.");
+                }
+                
+                // Set LayerMask to "Gameplay"
+                int gameplayLayer = LayerMask.NameToLayer("Gameplay");
+                if (gameplayLayer != -1)
+                {
+                    so.FindProperty("interactableLayer").intValue = 1 << gameplayLayer;
+                    Debug.Log($"<color=cyan>[PlayerTool]</color> Set interactableLayer to '{gameplayLayer}' (Gameplay).");
+                }
+                else
+                {
+                    Debug.LogWarning("<color=red>[PlayerTool]</color> 'Gameplay' layer not found! Using Default (0).");
+                }
+                
+                so.ApplyModifiedProperties();
+                changed = true;
+            }
+
+            // 3. Ensure Tag is "Player"
             if (!instance.CompareTag("Player"))
             {
                 instance.tag = "Player";

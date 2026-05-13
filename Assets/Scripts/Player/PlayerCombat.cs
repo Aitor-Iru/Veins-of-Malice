@@ -97,7 +97,9 @@ public class PlayerCombat : MonoBehaviour
 
     private void HandleAttack()
     {
-        if (isBlocking || (playerController != null && playerController.IsFrozen)) return; // No se puede atacar mientras bloqueas o estás congelado
+        if (isBlocking || (playerController != null && playerController.IsFrozen)) return;
+        if (VeinsOfMalice.UI.DialogueUI.Instance != null && VeinsOfMalice.UI.DialogueUI.Instance.IsDisplaying) return;
+        
         if (Time.time < comboCooldownEndTime) return;
         if (Time.time - lastAttackTime < attackCooldown) return;
 
@@ -107,6 +109,8 @@ public class PlayerCombat : MonoBehaviour
     private void HandleHeavyAttack()
     {
         if (isBlocking || (playerController != null && playerController.IsFrozen)) return;
+        if (VeinsOfMalice.UI.DialogueUI.Instance != null && VeinsOfMalice.UI.DialogueUI.Instance.IsDisplaying) return;
+
         if (Time.time - lastHeavyAttackTime < heavyAttackCooldown)
         {
             Debug.Log("<color=orange>[Heavy Attack] Cooldown active...</color>");
@@ -129,6 +133,12 @@ public class PlayerCombat : MonoBehaviour
             Debug.Log("<color=yellow>[Combat]</color> Downslam blocked: player is frozen.");
             return;
         }
+        if (VeinsOfMalice.UI.DialogueUI.Instance != null && VeinsOfMalice.UI.DialogueUI.Instance.IsDisplaying)
+        {
+            Debug.Log("<color=yellow>[Combat]</color> Downslam blocked: dialogue active.");
+            return;
+        }
+
         if (Time.time - lastDownslamTime < downslamCooldown)
         {
             Debug.Log("<color=yellow>[Combat]</color> Downslam blocked: cooldown active.");
@@ -141,6 +151,7 @@ public class PlayerCombat : MonoBehaviour
     private void HandleBlockStarted()
     {
         if (playerController != null && playerController.IsFrozen) return;
+        if (VeinsOfMalice.UI.DialogueUI.Instance != null && VeinsOfMalice.UI.DialogueUI.Instance.IsDisplaying) return;
         
         isBlocking = true;
         if (animator) animator.SetBool("IsBlocking", true);
