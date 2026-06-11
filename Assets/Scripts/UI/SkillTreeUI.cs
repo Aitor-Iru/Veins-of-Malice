@@ -414,12 +414,11 @@ namespace VeinsOfMalice.UI
                 case 1: // FOCUS
                     focGradeIndex = Mathf.Clamp(focGradeIndex + 1, 0, grades.Length - 1);
                     break;
-                case 2: // TECHNIQUE
-                    tecGradeIndex = Mathf.Clamp(tecGradeIndex + 1, 0, grades.Length - 1);
-                    break;
-                case 3: // STRENGTH
-                case 4: // INNATES (Mapeado a STR por simplicidad)
+                case 2: // STRENGTH
                     strGradeIndex = Mathf.Clamp(strGradeIndex + 1, 0, grades.Length - 1);
+                    break;
+                case 3: // TECHNIQUE
+                    tecGradeIndex = Mathf.Clamp(tecGradeIndex + 1, 0, grades.Length - 1);
                     break;
             }
         }
@@ -434,12 +433,11 @@ namespace VeinsOfMalice.UI
                 case 1: // FOCUS
                     focGradeIndex = Mathf.Clamp(focGradeIndex - 1, 0, grades.Length - 1);
                     break;
-                case 2: // TECHNIQUE
-                    tecGradeIndex = Mathf.Clamp(tecGradeIndex - 1, 0, grades.Length - 1);
-                    break;
-                case 3: // STRENGTH
-                case 4: // INNATES
+                case 2: // STRENGTH
                     strGradeIndex = Mathf.Clamp(strGradeIndex - 1, 0, grades.Length - 1);
+                    break;
+                case 3: // TECHNIQUE
+                    tecGradeIndex = Mathf.Clamp(tecGradeIndex - 1, 0, grades.Length - 1);
                     break;
             }
         }

@@ -90,15 +90,15 @@ namespace VeinsOfMalice.EditorTools
             // 7. Pestañas Superiores (Tab Buttons)
             GameObject tabsPanel = CreateUIObject("Tabs_Panel", panelObj.transform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 40f), new Vector2(900f, 50f));
             
-            string[] tabNames = { "HEALTH", "FOCUS", "TECHNIQUE", "STRENGTH", "INNATES" };
-            Button[] tabButtons = new Button[5];
-            GameObject[] tabContainers = new GameObject[5];
+            string[] tabNames = { "HEALTH", "FOCUS", "STRENGTH", "TECHNIQUE" };
+            Button[] tabButtons = new Button[4];
+            GameObject[] tabContainers = new GameObject[4];
 
             float tabWidth = 170f;
             float tabSpacing = 10f;
-            float startTabX = -((tabWidth * 5) + (tabSpacing * 4)) / 2f + (tabWidth / 2f);
+            float startTabX = -((tabWidth * 4) + (tabSpacing * 3)) / 2f + (tabWidth / 2f);
 
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 4; i++)
             {
                 int index = i;
                 GameObject tabBtnObj = CreateUIObject($"Tab_{tabNames[i]}", tabsPanel.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(startTabX + i * (tabWidth + tabSpacing), 0f), new Vector2(tabWidth, 40f));
@@ -150,96 +150,252 @@ namespace VeinsOfMalice.EditorTools
             // --- 9. CONSTRUIR LOS NODOS DE LA PESTAÑA "HEALTH" ---
             GameObject healthContainer = tabContainers[0];
 
-            // Nodos principales y posiciones
-            // Fila Central
-            SkillNodeUI nodeAwaken = CreateNode(healthContainer.transform, "HealthAwaken", new Vector2(-380f, 0f), false, 1, 1, "Awaken", Color.green);
-            SkillNodeUI nodeHealth1 = CreateNode(healthContainer.transform, "HealthIncrease1", new Vector2(-220f, 0f), true, 0, 3, "3", Color.green);
-            SkillNodeUI nodeHealth2 = CreateNode(healthContainer.transform, "HealthIncrease2", new Vector2(-60f, 0f), true, 0, 3, "3", Color.green);
-            SkillNodeUI nodeSlowRCT  = CreateNode(healthContainer.transform, "SlowRCT", new Vector2(100f, 0f), true, 0, 1, "30", Color.blue);
+            SkillNodeUI nodeAwaken = CreateNode(healthContainer.transform, "HealthAwaken", new Vector2(-380f, 0f), false, 1, 1, "2", Color.green);
+            SkillNodeUI nodeH1_Mid = CreateNode(healthContainer.transform, "Health_C1_Mid", new Vector2(-240f, 0f), true, 0, 3, "3", Color.green);
+            SkillNodeUI nodeH1_Top = CreateNode(healthContainer.transform, "Health_C1_Top", new Vector2(-240f, 120f), true, 0, 3, "3", Color.green);
+            SkillNodeUI nodeH1_Bot = CreateNode(healthContainer.transform, "Health_C1_Bot", new Vector2(-240f, -120f), true, 0, 3, "3", Color.green);
+            
+            SkillNodeUI nodeH2_Mid = CreateNode(healthContainer.transform, "Health_C2_Mid", new Vector2(-100f, 0f), true, 0, 3, "4", Color.green);
+            SkillNodeUI nodeH2_Top = CreateNode(healthContainer.transform, "Health_C2_Top", new Vector2(-100f, 120f), true, 0, 3, "3", Color.green);
+            SkillNodeUI nodeH2_Bot = CreateNode(healthContainer.transform, "Health_C2_Bot", new Vector2(-100f, -120f), true, 0, 3, "3", Color.green);
+            SkillNodeUI nodeH2_TopR = CreateNode(healthContainer.transform, "Health_C2_Top_Right", new Vector2(20f, 200f), true, 0, 3, "3", Color.green);
 
-            // Ramas Verticales
-            SkillNodeUI nodeLockAboveH1 = CreateNode(healthContainer.transform, "LockAboveH1", new Vector2(-220f, 150f), true, 0, 1, "3", Color.red);
-            
-            SkillNodeUI nodeVampFocus1 = CreateNode(healthContainer.transform, "VampiricFocus1", new Vector2(-60f, 120f), true, 0, 3, "3", new Color(0.5f, 0.2f, 1f)); // Púrpura
-            SkillNodeUI nodeVampFocus2 = CreateNode(healthContainer.transform, "VampiricFocus2", new Vector2(60f, 200f), true, 0, 1, "25", new Color(0.5f, 0.2f, 1f)); // Púrpura/Bloqueado
-            
-            SkillNodeUI nodeDecayResist = CreateNode(healthContainer.transform, "DecayResistance", new Vector2(-60f, -120f), true, 0, 3, "3", Color.grey);
+            SkillNodeUI nodeH3_Mid = CreateNode(healthContainer.transform, "Health_C3_Mid", new Vector2(140f, 0f), true, 0, 1, "30", Color.blue);
 
             // Cluster de Bloqueados Derecho (Candados)
-            Vector2 clusterCenter = new Vector2(280f, 0f);
-            SkillNodeUI nodeLockCLeft  = CreateNode(healthContainer.transform, "LockCenterLeft",  clusterCenter + new Vector2(-80f, 0f), true, 0, 1, "5", Color.magenta);
-            SkillNodeUI nodeLockCRight = CreateNode(healthContainer.transform, "LockCenterRight", clusterCenter + new Vector2(80f, 0f),  true, 0, 1, "6", Color.magenta);
-            SkillNodeUI nodeLockFarR   = CreateNode(healthContainer.transform, "LockFarRight",    clusterCenter + new Vector2(200f, 0f), true, 0, 1, "60", Color.red);
+            SkillNodeUI nodeHLockCLeft  = CreateNode(healthContainer.transform, "LockCenterLeft",  new Vector2(260f, 0f), true, 0, 1, "5", Color.magenta);
+            SkillNodeUI nodeHLockCRight = CreateNode(healthContainer.transform, "LockCenterRight", new Vector2(380f, 0f),  true, 0, 1, "6", Color.magenta);
+            SkillNodeUI nodeHLockFarR   = CreateNode(healthContainer.transform, "LockFarRight",    new Vector2(500f, 0f), true, 0, 1, "60", Color.red);
             
-            SkillNodeUI nodeLockTLeft  = CreateNode(healthContainer.transform, "LockTopLeft",     clusterCenter + new Vector2(0f, 100f),  true, 0, 1, "15", Color.yellow);
-            SkillNodeUI nodeLockTL_UL  = CreateNode(healthContainer.transform, "LockTL_UpLeft",   clusterCenter + new Vector2(-80f, 200f),true, 0, 1, "10", Color.yellow);
-            SkillNodeUI nodeLockTL_UR  = CreateNode(healthContainer.transform, "LockTL_UpRight",  clusterCenter + new Vector2(80f, 200f), true, 0, 1, "25", Color.yellow);
+            SkillNodeUI nodeHLockTLeft  = CreateNode(healthContainer.transform, "LockTopLeft",     new Vector2(320f, 100f),  true, 0, 1, "15", Color.yellow);
+            SkillNodeUI nodeHLockTL_UL  = CreateNode(healthContainer.transform, "LockTL_UpLeft",   new Vector2(260f, 200f),true, 0, 1, "10", Color.yellow);
+            SkillNodeUI nodeHLockTL_UR  = CreateNode(healthContainer.transform, "LockTL_UpRight",  new Vector2(380f, 200f), true, 0, 1, "25", Color.yellow);
             
-            SkillNodeUI nodeLockBLeft  = CreateNode(healthContainer.transform, "LockBottomLeft",  clusterCenter + new Vector2(0f, -100f), true, 0, 1, "15", Color.yellow);
-            SkillNodeUI nodeLockTRight = CreateNode(healthContainer.transform, "LockTopRight",    clusterCenter + new Vector2(140f, 100f),true, 0, 1, "25", Color.red);
-            SkillNodeUI nodeLockBRight = CreateNode(healthContainer.transform, "LockBottomRight", clusterCenter + new Vector2(140f, -100f),true, 0, 1, "10", Color.red);
+            SkillNodeUI nodeHLockBLeft  = CreateNode(healthContainer.transform, "LockBottomLeft",  new Vector2(320f, -100f), true, 0, 1, "15", Color.yellow);
+            SkillNodeUI nodeHLockTRight = CreateNode(healthContainer.transform, "LockTopRight",    new Vector2(440f, 100f),true, 0, 1, "25", Color.red);
+            SkillNodeUI nodeHLockBRight = CreateNode(healthContainer.transform, "LockBottomRight", new Vector2(440f, -100f),true, 0, 1, "10", Color.red);
 
-            // --- CONFIGURAR DEPENDENCIAS ---
-            nodeAwaken.childNodes = new[] { nodeHealth1 };
+            // --- CONFIGURAR DEPENDENCIAS HEALTH ---
+            nodeAwaken.childNodes = new[] { nodeH1_Mid };
             
-            nodeHealth1.parentNodes = new[] { nodeAwaken };
-            nodeHealth1.childNodes = new[] { nodeHealth2, nodeLockAboveH1 };
+            nodeH1_Mid.parentNodes = new[] { nodeAwaken };
+            nodeH1_Mid.childNodes = new[] { nodeH1_Top, nodeH1_Bot, nodeH2_Mid };
             
-            nodeLockAboveH1.parentNodes = new[] { nodeHealth1 };
+            nodeH1_Top.parentNodes = new[] { nodeH1_Mid };
+            nodeH1_Bot.parentNodes = new[] { nodeH1_Mid };
 
-            nodeHealth2.parentNodes = new[] { nodeHealth1 };
-            nodeHealth2.childNodes = new[] { nodeVampFocus1, nodeDecayResist, nodeSlowRCT };
+            nodeH2_Mid.parentNodes = new[] { nodeH1_Mid };
+            nodeH2_Mid.childNodes = new[] { nodeH2_Top, nodeH2_Bot, nodeH3_Mid };
 
-            nodeVampFocus1.parentNodes = new[] { nodeHealth2 };
-            nodeVampFocus1.childNodes = new[] { nodeVampFocus2 };
+            nodeH2_Top.parentNodes = new[] { nodeH2_Mid };
+            nodeH2_Top.childNodes = new[] { nodeH2_TopR };
 
-            nodeVampFocus2.parentNodes = new[] { nodeVampFocus1 };
-            
-            nodeDecayResist.parentNodes = new[] { nodeHealth2 };
+            nodeH2_TopR.parentNodes = new[] { nodeH2_Top };
+            nodeH2_Bot.parentNodes = new[] { nodeH2_Mid };
 
-            nodeSlowRCT.parentNodes = new[] { nodeHealth2 };
-            nodeSlowRCT.childNodes = new[] { nodeLockCLeft };
+            nodeH3_Mid.parentNodes = new[] { nodeH2_Mid };
+            nodeH3_Mid.childNodes = new[] { nodeHLockCLeft };
 
             // Conexiones del cluster
-            nodeLockCLeft.parentNodes = new[] { nodeSlowRCT };
-            nodeLockCLeft.childNodes = new[] { nodeLockTLeft, nodeLockBLeft, nodeLockCRight };
+            nodeHLockCLeft.parentNodes = new[] { nodeH3_Mid };
+            nodeHLockCLeft.childNodes = new[] { nodeHLockTLeft, nodeHLockBLeft, nodeHLockCRight };
 
-            nodeLockTLeft.parentNodes = new[] { nodeLockCLeft };
-            nodeLockTLeft.childNodes = new[] { nodeLockTL_UL, nodeLockTL_UR };
+            nodeHLockTLeft.parentNodes = new[] { nodeHLockCLeft };
+            nodeHLockTLeft.childNodes = new[] { nodeHLockTL_UL, nodeHLockTL_UR };
 
-            nodeLockTL_UL.parentNodes = new[] { nodeLockTLeft };
-            nodeLockTL_UR.parentNodes = new[] { nodeLockTLeft };
+            nodeHLockTL_UL.parentNodes = new[] { nodeHLockTLeft };
+            nodeHLockTL_UR.parentNodes = new[] { nodeHLockTLeft };
 
-            nodeLockBLeft.parentNodes = new[] { nodeLockCLeft };
+            nodeHLockBLeft.parentNodes = new[] { nodeHLockCLeft };
 
-            nodeLockCRight.parentNodes = new[] { nodeLockCLeft };
-            nodeLockCRight.childNodes = new[] { nodeLockTRight, nodeLockBRight, nodeLockFarR };
+            nodeHLockCRight.parentNodes = new[] { nodeHLockCLeft };
+            nodeHLockCRight.childNodes = new[] { nodeHLockTRight, nodeHLockBRight, nodeHLockFarR };
 
-            nodeLockTRight.parentNodes = new[] { nodeLockCRight };
-            nodeLockBRight.parentNodes = new[] { nodeLockCRight };
-            nodeLockFarR.parentNodes = new[] { nodeLockCRight };
+            nodeHLockTRight.parentNodes = new[] { nodeHLockCRight };
+            nodeHLockBRight.parentNodes = new[] { nodeHLockCRight };
+            nodeHLockFarR.parentNodes = new[] { nodeHLockCRight };
 
-            // --- 10. AÑADIR UN PAR DE NODOS DE MUESTRA PARA OTRAS PESTAÑAS ---
-            for (int t = 1; t < 5; t++)
-            {
-                CreateNode(tabContainers[t].transform, "StartNode", new Vector2(-150f, 0f), false, 1, 1, "Start", Color.cyan);
-                CreateNode(tabContainers[t].transform, "UpgradeNode", new Vector2(150f, 0f), true, 0, 3, "15", Color.cyan);
-            }
+
+            // --- 9b. CONSTRUIR LOS NODOS DE LA PESTAÑA "FOCUS" ---
+            GameObject focusContainer = tabContainers[1];
+
+            SkillNodeUI focusAwaken = CreateNode(focusContainer.transform, "FocusAwaken", new Vector2(-380f, 0f), false, 1, 1, "2", Color.cyan);
+            
+            SkillNodeUI nodeF1_Mid = CreateNode(focusContainer.transform, "Focus_C1_Mid", new Vector2(-240f, 0f), true, 0, 3, "3", Color.cyan);
+            SkillNodeUI nodeF1_Top = CreateNode(focusContainer.transform, "Focus_C1_Top", new Vector2(-240f, 120f), true, 0, 3, "15", Color.cyan);
+            SkillNodeUI nodeF1_TopT = CreateNode(focusContainer.transform, "Focus_C1_Top_Top", new Vector2(-240f, 240f), true, 0, 3, "15", Color.cyan);
+            SkillNodeUI nodeF1_Bot = CreateNode(focusContainer.transform, "Focus_C1_Bot", new Vector2(-240f, -120f), true, 0, 3, "3", Color.cyan);
+            SkillNodeUI nodeF1_BotB = CreateNode(focusContainer.transform, "Focus_C1_Bot_Bot", new Vector2(-240f, -240f), true, 0, 3, "4", Color.cyan);
+
+            SkillNodeUI nodeF2_Mid = CreateNode(focusContainer.transform, "Focus_C2_Mid", new Vector2(-100f, 0f), true, 0, 3, "4", Color.cyan);
+            SkillNodeUI nodeF2_Top = CreateNode(focusContainer.transform, "Focus_C2_Top", new Vector2(-100f, 120f), true, 0, 3, "15", Color.cyan);
+            SkillNodeUI nodeF2_TopT = CreateNode(focusContainer.transform, "Focus_C2_Top_Top", new Vector2(-100f, 240f), true, 0, 3, "15", Color.cyan);
+            SkillNodeUI nodeF2_Bot = CreateNode(focusContainer.transform, "Focus_C2_Bot", new Vector2(-100f, -120f), true, 0, 3, "3", Color.cyan);
+            SkillNodeUI nodeF2_BotB = CreateNode(focusContainer.transform, "Focus_C2_Bot_Bot", new Vector2(-100f, -240f), true, 0, 3, "5", Color.cyan);
+
+            SkillNodeUI nodeF3_Mid = CreateNode(focusContainer.transform, "Focus_C3_Mid", new Vector2(140f, 0f), true, 0, 1, "40", Color.blue);
+            SkillNodeUI nodeF3_TopL = CreateNode(focusContainer.transform, "Focus_C3_Top_Left", new Vector2(20f, 120f), true, 0, 3, "3", Color.cyan);
+            SkillNodeUI nodeF3_TopT = CreateNode(focusContainer.transform, "Focus_C3_Top_Top", new Vector2(140f, 240f), true, 0, 3, "3", Color.cyan);
+            SkillNodeUI nodeF3_BotL = CreateNode(focusContainer.transform, "Focus_C3_Bot_Left", new Vector2(20f, -120f), true, 0, 3, "3", Color.cyan);
+
+            SkillNodeUI nodeFLockCLeft  = CreateNode(focusContainer.transform, "FocusLockCenterLeft",  new Vector2(260f, 0f), true, 0, 1, "5", Color.magenta);
+            SkillNodeUI nodeFLockBLeft  = CreateNode(focusContainer.transform, "FocusLockBottomLeft",  new Vector2(260f, -120f), true, 0, 1, "15", Color.yellow);
+            SkillNodeUI nodeFLockCRight = CreateNode(focusContainer.transform, "FocusLockCenterRight", new Vector2(380f, 0f), true, 0, 1, "6", Color.magenta);
+            SkillNodeUI nodeFLockBRight = CreateNode(focusContainer.transform, "FocusLockBottomRight", new Vector2(380f, -120f), true, 0, 1, "15", Color.yellow);
+            SkillNodeUI nodeFLockFarR   = CreateNode(focusContainer.transform, "FocusLockFarRight",    new Vector2(500f, 0f), true, 0, 1, "60", Color.red);
+
+            // --- CONFIGURAR DEPENDENCIAS FOCUS ---
+            focusAwaken.childNodes = new[] { nodeF1_Mid };
+            
+            nodeF1_Mid.parentNodes = new[] { focusAwaken };
+            nodeF1_Mid.childNodes = new[] { nodeF1_Top, nodeF1_Bot, nodeF2_Mid };
+
+            nodeF1_Top.parentNodes = new[] { nodeF1_Mid };
+            nodeF1_Top.childNodes = new[] { nodeF1_TopT };
+            nodeF1_TopT.parentNodes = new[] { nodeF1_Top };
+
+            nodeF1_Bot.parentNodes = new[] { nodeF1_Mid };
+            nodeF1_Bot.childNodes = new[] { nodeF1_BotB };
+            nodeF1_BotB.parentNodes = new[] { nodeF1_Bot };
+            nodeF1_BotB.childNodes = new[] { nodeF2_BotB }; // Conexión horizontal en la base
+
+            nodeF2_Mid.parentNodes = new[] { nodeF1_Mid };
+            nodeF2_Mid.childNodes = new[] { nodeF2_Top, nodeF2_Bot, nodeF3_Mid };
+
+            nodeF2_Top.parentNodes = new[] { nodeF2_Mid };
+            nodeF2_Top.childNodes = new[] { nodeF2_TopT };
+            nodeF2_TopT.parentNodes = new[] { nodeF2_Top };
+
+            nodeF2_Bot.parentNodes = new[] { nodeF2_Mid };
+            nodeF2_Bot.childNodes = new[] { nodeF2_BotB };
+            nodeF2_BotB.parentNodes = new[] { nodeF2_Bot, nodeF1_BotB };
+
+            nodeF3_Mid.parentNodes = new[] { nodeF2_Mid };
+            nodeF3_Mid.childNodes = new[] { nodeF3_TopL, nodeF3_BotL, nodeFLockCLeft };
+
+            nodeF3_TopL.parentNodes = new[] { nodeF3_Mid };
+            nodeF3_TopL.childNodes = new[] { nodeF3_TopT };
+            nodeF3_TopT.parentNodes = new[] { nodeF3_TopL };
+
+            nodeF3_BotL.parentNodes = new[] { nodeF3_Mid };
+
+            nodeFLockCLeft.parentNodes = new[] { nodeF3_Mid };
+            nodeFLockCLeft.childNodes = new[] { nodeFLockBLeft, nodeFLockCRight };
+
+            nodeFLockBLeft.parentNodes = new[] { nodeFLockCLeft };
+
+            nodeFLockCRight.parentNodes = new[] { nodeFLockCLeft };
+            nodeFLockCRight.childNodes = new[] { nodeFLockBRight, nodeFLockFarR };
+
+            nodeFLockBRight.parentNodes = new[] { nodeFLockCRight };
+            nodeFLockFarR.parentNodes = new[] { nodeFLockCRight };
+
+
+            // --- 9c. CONSTRUIR LOS NODOS DE LA PESTAÑA "STRENGTH" ---
+            GameObject strengthContainer = tabContainers[2];
+
+            SkillNodeUI strengthAwaken = CreateNode(strengthContainer.transform, "StrengthAwaken", new Vector2(-380f, 0f), false, 1, 1, "2", Color.red);
+            
+            SkillNodeUI nodeS1_Mid = CreateNode(strengthContainer.transform, "Strength_C1_Mid", new Vector2(-240f, 0f), true, 0, 3, "3", Color.red);
+            SkillNodeUI nodeS1_Top = CreateNode(strengthContainer.transform, "Strength_C1_Top", new Vector2(-240f, 120f), true, 0, 3, "10", Color.red);
+            SkillNodeUI nodeS1_TopT = CreateNode(strengthContainer.transform, "Strength_C1_Top_Top", new Vector2(-240f, 240f), true, 0, 3, "10", Color.red);
+            SkillNodeUI nodeS1_Bot = CreateNode(strengthContainer.transform, "Strength_C1_Bot", new Vector2(-240f, -120f), true, 0, 3, "10", Color.red);
+            SkillNodeUI nodeS1_BotB = CreateNode(strengthContainer.transform, "Strength_C1_Bot_Bot", new Vector2(-240f, -240f), true, 0, 3, "10", Color.red);
+
+            SkillNodeUI nodeS2_Mid = CreateNode(strengthContainer.transform, "Strength_C2_Mid", new Vector2(-100f, 0f), true, 0, 3, "4", Color.red);
+            SkillNodeUI nodeS2_Top = CreateNode(strengthContainer.transform, "Strength_C2_Top", new Vector2(-100f, 120f), true, 0, 3, "10", Color.red);
+            SkillNodeUI nodeS2_Bot = CreateNode(strengthContainer.transform, "Strength_C2_Bot", new Vector2(-100f, -120f), true, 0, 3, "10", Color.red);
+            SkillNodeUI nodeS2_BotB = CreateNode(strengthContainer.transform, "Strength_C2_Bot_Bot", new Vector2(-20f, -200f), true, 0, 3, "10", Color.red);
+
+            SkillNodeUI nodeS3_Mid = CreateNode(strengthContainer.transform, "Strength_C3_Mid", new Vector2(140f, 0f), true, 0, 1, "30", Color.blue);
+
+            SkillNodeUI nodeSLockCLeft  = CreateNode(strengthContainer.transform, "StrengthLockCenterLeft",  new Vector2(260f, 0f), true, 0, 1, "5", Color.magenta);
+            SkillNodeUI nodeSLockCRight = CreateNode(strengthContainer.transform, "StrengthLockCenterRight", new Vector2(380f, 0f), true, 0, 1, "6", Color.magenta);
+            SkillNodeUI nodeSLockFarR   = CreateNode(strengthContainer.transform, "StrengthLockFarRight",    new Vector2(500f, 0f), true, 0, 1, "60", Color.red);
+            
+            SkillNodeUI nodeSLockTLeft  = CreateNode(strengthContainer.transform, "StrengthLockTopLeft",     new Vector2(260f, 120f), true, 0, 1, "15", Color.yellow);
+            SkillNodeUI nodeSLockBLeft  = CreateNode(strengthContainer.transform, "StrengthLockBottomLeft",  new Vector2(260f, -120f), true, 0, 1, "10", Color.yellow);
+            SkillNodeUI nodeSLockTRight = CreateNode(strengthContainer.transform, "StrengthLockTopRight",    new Vector2(380f, 120f), true, 0, 1, "3", Color.yellow);
+
+            // --- CONFIGURAR DEPENDENCIAS STRENGTH ---
+            strengthAwaken.childNodes = new[] { nodeS1_Mid };
+            
+            nodeS1_Mid.parentNodes = new[] { strengthAwaken };
+            nodeS1_Mid.childNodes = new[] { nodeS1_Top, nodeS1_Bot, nodeS2_Mid };
+
+            nodeS1_Top.parentNodes = new[] { nodeS1_Mid };
+            nodeS1_Top.childNodes = new[] { nodeS1_TopT };
+            nodeS1_TopT.parentNodes = new[] { nodeS1_Top };
+
+            nodeS1_Bot.parentNodes = new[] { nodeS1_Mid };
+            nodeS1_Bot.childNodes = new[] { nodeS1_BotB };
+            nodeS1_BotB.parentNodes = new[] { nodeS1_Bot };
+
+            nodeS2_Mid.parentNodes = new[] { nodeS1_Mid };
+            nodeS2_Mid.childNodes = new[] { nodeS2_Top, nodeS2_Bot, nodeS3_Mid };
+
+            nodeS2_Top.parentNodes = new[] { nodeS2_Mid };
+
+            nodeS2_Bot.parentNodes = new[] { nodeS2_Mid };
+            nodeS2_Bot.childNodes = new[] { nodeS2_BotB };
+            nodeS2_BotB.parentNodes = new[] { nodeS2_Bot };
+
+            nodeS3_Mid.parentNodes = new[] { nodeS2_Mid };
+            nodeS3_Mid.childNodes = new[] { nodeSLockCLeft };
+
+            nodeSLockCLeft.parentNodes = new[] { nodeS3_Mid };
+            nodeSLockCLeft.childNodes = new[] { nodeSLockTLeft, nodeSLockBLeft, nodeSLockCRight };
+
+            nodeSLockTLeft.parentNodes = new[] { nodeSLockCLeft };
+            nodeSLockBLeft.parentNodes = new[] { nodeSLockCLeft };
+
+            nodeSLockCRight.parentNodes = new[] { nodeSLockCLeft };
+            nodeSLockCRight.childNodes = new[] { nodeSLockTRight, nodeSLockFarR };
+
+            nodeSLockTRight.parentNodes = new[] { nodeSLockCRight };
+            nodeSLockFarR.parentNodes = new[] { nodeSLockCRight };
+
+
+            // --- 9d. CONSTRUIR LA LÍNEA DE MAESTRÍA DE "SOUL KING" (TECHNIQUE) ---
+            GameObject techContainer = tabContainers[3];
+            CreateStyleHeaderPanel(techContainer.transform, "Soul King", "585/1000", new Color(0.85f, 0.15f, 0.15f));
+
+            SkillNodeUI techM1   = CreateMasteryNode(techContainer.transform, "TechMastery1",   new Vector2(-180f, 0f), false, 1, 1, "(Mastery 1)",   "", new Color(0.85f, 0.15f, 0.15f));
+            SkillNodeUI techM50  = CreateMasteryNode(techContainer.transform, "TechMastery50",  new Vector2(-90f, 0f),  false, 1, 1, "(Mastery 50)",  "", new Color(0.85f, 0.15f, 0.15f));
+            SkillNodeUI techM100 = CreateMasteryNode(techContainer.transform, "TechMastery100", new Vector2(0f, 0f),    false, 1, 1, "(Mastery 100)", "", new Color(0.85f, 0.15f, 0.15f));
+            SkillNodeUI techM150 = CreateMasteryNode(techContainer.transform, "TechMastery150", new Vector2(90f, 0f),   false, 1, 1, "(Mastery 150)", "", new Color(0.85f, 0.15f, 0.15f));
+            SkillNodeUI techM200 = CreateMasteryNode(techContainer.transform, "TechMastery200", new Vector2(180f, 0f),  false, 1, 1, "(Mastery 200)", "", new Color(0.85f, 0.15f, 0.15f));
+            SkillNodeUI techM250 = CreateMasteryNode(techContainer.transform, "TechMastery250", new Vector2(270f, 0f),  true,  0, 1, "(Mastery 250)", "", new Color(0.85f, 0.15f, 0.15f));
+            SkillNodeUI techM300 = CreateMasteryNode(techContainer.transform, "TechMastery300", new Vector2(360f, 0f),  true,  0, 1, "(Mastery 300)", "", new Color(0.85f, 0.15f, 0.15f));
+
+            // Conexiones
+            techM1.childNodes = new[] { techM50 };
+            techM50.parentNodes = new[] { techM1 };
+            techM50.childNodes = new[] { techM100 };
+            techM100.parentNodes = new[] { techM50 };
+            techM100.childNodes = new[] { techM150 };
+            techM150.parentNodes = new[] { techM100 };
+            techM150.childNodes = new[] { techM200 };
+            techM200.parentNodes = new[] { techM150 };
+            techM200.childNodes = new[] { techM250 };
+            techM250.parentNodes = new[] { techM200 };
+            techM250.childNodes = new[] { techM300 };
+            techM300.parentNodes = new[] { techM250 };
 
             // --- 11. ASIGNAR REFERENCIAS EN EL MANAGER ---
             SerializedObject so = new SerializedObject(skillTreeUI);
             
             // Pestañas
             SerializedProperty propButtons = so.FindProperty("tabButtons");
-            propButtons.arraySize = 5;
-            for (int i = 0; i < 5; i++)
+            propButtons.arraySize = 4;
+            for (int i = 0; i < 4; i++)
             {
                 propButtons.GetArrayElementAtIndex(i).objectReferenceValue = tabButtons[i];
             }
 
             SerializedProperty propContainers = so.FindProperty("tabContainers");
-            propContainers.arraySize = 5;
-            for (int i = 0; i < 5; i++)
+            propContainers.arraySize = 4;
+            for (int i = 0; i < 4; i++)
             {
                 propContainers.GetArrayElementAtIndex(i).objectReferenceValue = tabContainers[i];
             }
@@ -446,6 +602,137 @@ namespace VeinsOfMalice.EditorTools
             soNode.FindProperty("currentLevel").intValue = level;
             soNode.FindProperty("maxLevel").intValue = maxLevel;
             soNode.FindProperty("costValueString").stringValue = costStr;
+            soNode.FindProperty("activeColor").colorValue = activeColor;
+            
+            soNode.FindProperty("outlineImage").objectReferenceValue = outlineImg;
+            soNode.FindProperty("fillImage").objectReferenceValue = fillImg;
+            soNode.FindProperty("lockIcon").objectReferenceValue = lockObj;
+            soNode.FindProperty("costText").objectReferenceValue = costText;
+            soNode.FindProperty("selectionHighlight").objectReferenceValue = highlightObj;
+            
+            soNode.ApplyModifiedProperties();
+            skillNode.UpdateVisuals();
+
+            return skillNode;
+        }
+
+        private static void CreateStyleHeaderPanel(Transform parent, string styleName, string expStr, Color themeColor)
+        {
+            // Create a panel on the left: X = -380f, Y = 0f, Size = 240f, 150f
+            GameObject panel = CreateUIObject(styleName + "_HeaderPanel", parent, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-360f, 0f), new Vector2(210f, 140f));
+            CreateImage("Bg", panel.transform, new Color(0.04f, 0.04f, 0.08f, 0.95f));
+            CreateOutline("Outline", panel.transform, themeColor, 1.5f);
+
+            // Icon placeholder
+            GameObject iconObj = CreateUIObject("Icon", panel.transform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(35f, 0f), new Vector2(50f, 50f));
+            CreateImage("IconBg", iconObj.transform, new Color(0.1f, 0.1f, 0.15f));
+            CreateOutline("IconOutline", iconObj.transform, themeColor, 1f);
+            
+            // Name Text
+            TextMeshProUGUI nameTxt = CreateText("NameText", panel.transform, styleName, 18, themeColor, TextAlignmentOptions.Left);
+            nameTxt.rectTransform.anchoredPosition = new Vector2(125f, 35f);
+            nameTxt.fontStyle = FontStyles.Bold;
+
+            // Mastery text
+            TextMeshProUGUI masteryTxt = CreateText("MasteryText", panel.transform, "(Mastery 500)", 10, new Color(0.25f, 0.75f, 0.75f), TextAlignmentOptions.Left);
+            masteryTxt.rectTransform.anchoredPosition = new Vector2(125f, 12f);
+
+            // Experience Text
+            TextMeshProUGUI expTxt = CreateText("ExpText", panel.transform, expStr, 10, Color.white, TextAlignmentOptions.Left);
+            expTxt.rectTransform.anchoredPosition = new Vector2(125f, -10f);
+
+            // Simple experience bar container
+            GameObject barContainer = CreateUIObject("ExpBar", panel.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(20f, -38f), new Vector2(150f, 8f));
+            CreateImage("Bg", barContainer.transform, new Color(0.05f, 0.05f, 0.08f));
+            
+            GameObject fill = CreateUIObject("Fill", barContainer.transform, Vector2.zero, Vector2.one, new Vector2(0f, 0.5f), Vector2.zero, Vector2.zero);
+            Image fillImg = fill.AddComponent<Image>();
+            fillImg.color = themeColor;
+            
+            // Parse progress from expStr (e.g. "585/1000")
+            float fillAmount = 0f;
+            if (expStr.Contains("/"))
+            {
+                string[] parts = expStr.Split('/');
+                if (float.TryParse(parts[0], out float current) && float.TryParse(parts[1], out float total) && total > 0f)
+                {
+                    fillAmount = current / total;
+                }
+            }
+            RectTransform fillRect = fill.GetComponent<RectTransform>();
+            fillRect.anchorMax = new Vector2(fillAmount, 1f);
+        }
+
+        private static SkillNodeUI CreateMasteryNode(Transform parent, string name, Vector2 pos, bool isLocked, int level, int maxLevel, string masteryStr, string bottomLabelStr, Color activeColor)
+        {
+            // Contenedor principal del nodo
+            GameObject nodeContainer = CreateUIObject(name, parent, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), pos, new Vector2(75f, 85f));
+
+            // Botón del nodo (Rombo rotado a 45 grados)
+            GameObject diamondButtonObj = CreateUIObject("DiamondButton", nodeContainer.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 0f), new Vector2(50f, 50f));
+            diamondButtonObj.transform.localRotation = Quaternion.Euler(0f, 0f, 45f);
+            
+            Image outlineImg = diamondButtonObj.AddComponent<Image>();
+            outlineImg.color = activeColor;
+            Button button = diamondButtonObj.AddComponent<Button>();
+
+            // Imagen de Relleno Interno
+            GameObject fillObj = CreateUIObject("Fill", diamondButtonObj.transform, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(-8f, -8f));
+            Image fillImg = fillObj.AddComponent<Image>();
+            fillImg.color = activeColor;
+            fillImg.type = Image.Type.Filled;
+            fillImg.fillMethod = Image.FillMethod.Horizontal;
+            fillImg.fillAmount = 1f;
+
+            // Icono de candado (rotado en sentido opuesto -45 grados para quedar recto)
+            GameObject lockObj = CreateUIObject("LockIcon", diamondButtonObj.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(30f, 30f));
+            lockObj.transform.localRotation = Quaternion.Euler(0f, 0f, -45f);
+            TextMeshProUGUI lockTxt = lockObj.AddComponent<TextMeshProUGUI>();
+            lockTxt.text = "🔒";
+            lockTxt.fontSize = 20;
+            lockTxt.alignment = TextAlignmentOptions.Center;
+            lockTxt.color = Color.white;
+            lockTxt.raycastTarget = false;
+            
+            // Resalte de selección
+            GameObject highlightObj = CreateUIObject("Highlight", diamondButtonObj.transform, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(10f, 10f));
+            Image highImg = highlightObj.AddComponent<Image>();
+            highImg.color = Color.clear;
+            Outline highOutline = highlightObj.AddComponent<Outline>();
+            highOutline.effectColor = Color.white;
+            highOutline.effectDistance = new Vector2(3f, 3f);
+            highlightObj.SetActive(false);
+
+            // Texto superior de maestría
+            GameObject topLabelObj = CreateUIObject("MasteryText", nodeContainer.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, 35f), new Vector2(120f, 20f));
+            TextMeshProUGUI topText = topLabelObj.AddComponent<TextMeshProUGUI>();
+            topText.text = masteryStr;
+            topText.fontSize = 10;
+            topText.alignment = TextAlignmentOptions.Center;
+            topText.color = new Color(0.7f, 0.7f, 0.7f);
+            topText.fontStyle = FontStyles.Italic;
+            topText.raycastTarget = false;
+
+            // Texto inferior (coste o etiqueta especial)
+            string displayCost = !string.IsNullOrEmpty(bottomLabelStr) ? bottomLabelStr : "1";
+            GameObject bottomLabelObj = CreateUIObject("LevelText", nodeContainer.transform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0.5f), new Vector2(0f, -38f), new Vector2(120f, 30f));
+            TextMeshProUGUI costText = bottomLabelObj.AddComponent<TextMeshProUGUI>();
+            costText.text = displayCost;
+            costText.fontSize = 9;
+            costText.alignment = TextAlignmentOptions.Center;
+            costText.color = activeColor;
+            costText.fontStyle = FontStyles.Bold;
+            costText.raycastTarget = false;
+
+            // Registrar script
+            SkillNodeUI skillNode = nodeContainer.AddComponent<SkillNodeUI>();
+            SerializedObject soNode = new SerializedObject(skillNode);
+            
+            soNode.FindProperty("nodeName").stringValue = name;
+            soNode.FindProperty("isLocked").boolValue = isLocked;
+            soNode.FindProperty("currentLevel").intValue = level;
+            soNode.FindProperty("maxLevel").intValue = maxLevel;
+            soNode.FindProperty("costValueString").stringValue = displayCost;
             soNode.FindProperty("activeColor").colorValue = activeColor;
             
             soNode.FindProperty("outlineImage").objectReferenceValue = outlineImg;
