@@ -34,12 +34,29 @@ namespace VeinsOfMalice.UI
 
         public void SpawnDamageNumber(Vector3 worldPosition, string message, Color color)
         {
-            if (damageTextPrefab == null) return;
+            // Ensure we have a prefab; create a fallback if missing
+            if (damageTextPrefab == null)
+            {
+                GameObject fallback = new GameObject("DamageNumberPrefab");
+                fallback.transform.SetParent(this.transform);
+                TextMeshPro tmp = fallback.AddComponent<TextMeshPro>();
+                tmp.alignment = TextAlignmentOptions.Center;
+                tmp.fontSize = 3f;
+                tmp.enableAutoSizing = true;
+                tmp.fontStyle = FontStyles.Bold;
+                Canvas canvas = fallback.AddComponent<Canvas>();
+                canvas.renderMode = RenderMode.WorldSpace;
+                canvas.worldCamera = Camera.main;
+                RectTransform rt = fallback.GetComponent<RectTransform>();
+                rt.sizeDelta = new Vector2(2f, 2f);
+                damageTextPrefab = fallback;
+            }
 
+            // Instantiate the prefab at the desired world position
             GameObject obj = Instantiate(damageTextPrefab, worldPosition + spawnOffset, Quaternion.identity);
             obj.SetActive(true);
             TextMeshPro text = obj.GetComponentInChildren<TextMeshPro>(true);
-            
+
             if (text != null)
             {
                 text.text = message;

@@ -62,6 +62,30 @@ public class PlayerController : MonoBehaviour
         rend = GetComponentInChildren<Renderer>();
         if (rend) originalColor = rend.material.color;
 
+        // Ensure groundLayer includes "Ground" layer if not set
+        if (groundLayer == 0)
+        {
+            int gl = LayerMask.NameToLayer("Ground");
+            if (gl != -1)
+                groundLayer = 1 << gl;
+        }
+
+        // Ensure groundCheck is assigned; try to find a child named "GroundCheck"
+        if (groundCheck == null)
+        {
+            Transform gc = transform.Find("GroundCheck");
+            if (gc != null)
+                groundCheck = gc;
+            else
+            {
+                // Create a new child for ground checking
+                GameObject go = new GameObject("GroundCheck");
+                go.transform.SetParent(transform);
+                go.transform.localPosition = new Vector3(0, 0.1f, 0);
+                groundCheck = go.transform;
+            }
+        }
+
         rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionZ;
         rb.useGravity = true;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
@@ -280,9 +304,9 @@ public class PlayerController : MonoBehaviour
         float rayDistance = 0.2f; // El rayo baja 0.1u por debajo de los pies
         float sideOffset = groundCheckRadius * 0.5f; // Offset lateral para los rayos laterales
 
-        bool hitCenter = Physics.Raycast(origin, Vector3.down, rayDistance, groundLayer);
-        bool hitLeft   = Physics.Raycast(origin + Vector3.left * sideOffset, Vector3.down, rayDistance, groundLayer);
-        bool hitRight  = Physics.Raycast(origin + Vector3.right * sideOffset, Vector3.down, rayDistance, groundLayer);
+        bool hitCenter = Physics.Raycast(origin, Vector3.down, rayDistance);
+bool hitLeft   = Physics.Raycast(origin + Vector3.left * sideOffset, Vector3.down, rayDistance);
+bool hitRight  = Physics.Raycast(origin + Vector3.right * sideOffset, Vector3.down, rayDistance);
 
         isGrounded = hitCenter || hitLeft || hitRight;
 

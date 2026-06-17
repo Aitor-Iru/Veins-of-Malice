@@ -96,7 +96,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: 6fb7b49d84597d64facfe779340a77c6, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -194,6 +194,7 @@ MonoBehaviour:
   currentHealth: 50
   hitColor: {r: 1, g: 0, b: 0, a: 1}
   flashDuration: 0.2
+  xpReward: 20
 --- !u!114 &6136999252954094643
 MonoBehaviour:
   m_ObjectHideFlags: 0
