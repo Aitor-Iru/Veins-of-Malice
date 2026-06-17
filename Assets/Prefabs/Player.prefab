@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 5675275164153214700}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.56, z: 0}
+  m_LocalPosition: {x: 0, y: -0.31, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -191,8 +191,8 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 120
   m_CollisionDetection: 1
---- !u!136 &4465149966658610574
-CapsuleCollider:
+--- !u!65 &4465149966658610574
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -209,11 +209,9 @@ CapsuleCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5168155
-  m_Height: 1.9980935
-  m_Direction: 1
-  m_Center: {x: 0.000000059604645, y: 0.42649096, z: 0}
+  serializedVersion: 3
+  m_Size: {x: 0.8, y: 1.5, z: 0.2}
+  m_Center: {x: 0, y: 0.443, z: 0}
 --- !u!114 &2173633496955364434
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -240,7 +238,7 @@ MonoBehaviour:
   groundCheckRadius: 0.25
   groundLayer:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 256
   groundCheck: {fileID: 1898139912767745456}
 --- !u!114 &3434665234721408379
 MonoBehaviour:

@@ -78,10 +78,10 @@ public class PlayerController : MonoBehaviour
                 groundCheck = gc;
             else
             {
-                // Create a new child for ground checking
+                // Create a new child for ground checking at the character's feet
                 GameObject go = new GameObject("GroundCheck");
                 go.transform.SetParent(transform);
-                go.transform.localPosition = new Vector3(0, 0.1f, 0);
+                go.transform.localPosition = new Vector3(0, -0.05f, 0); // justo en los pies
                 groundCheck = go.transform;
             }
         }
@@ -295,25 +295,27 @@ public class PlayerController : MonoBehaviour
 
     private void CheckGround()
     {
-        // Usamos Raycasts en lugar de cajas/esferas para ser 100% precisos y evitar paredes.
-        // Tiramos 3 rayos: uno central y dos laterales ligeramente hacia adentro.
-        
+        // Tiramos 3 rayos verticales (centro + laterales) usando la groundLayer para
+        // ignorar enemigos, props y otros personajes — solo golpea geometría de suelo.
+
         Vector3 origin = groundCheck ? groundCheck.position : transform.position;
-        origin += Vector3.up * 0.1f; // Empezamos un poco por encima de los pies
+        // Partimos desde ligeramente por encima de los pies para evitar
+        // que el rayo empiece dentro del propio collider.
+        origin += Vector3.up * 0.05f;
 
-        float rayDistance = 0.2f; // El rayo baja 0.1u por debajo de los pies
-        float sideOffset = groundCheckRadius * 0.5f; // Offset lateral para los rayos laterales
+        float rayDistance = 0.3f;                       // Margen suficiente para jitter de física
+        float sideOffset  = groundCheckRadius * 0.5f;   // Offset lateral
 
-        bool hitCenter = Physics.Raycast(origin, Vector3.down, rayDistance);
-bool hitLeft   = Physics.Raycast(origin + Vector3.left * sideOffset, Vector3.down, rayDistance);
-bool hitRight  = Physics.Raycast(origin + Vector3.right * sideOffset, Vector3.down, rayDistance);
+        bool hitCenter = Physics.Raycast(origin,                               Vector3.down, rayDistance, groundLayer);
+        bool hitLeft   = Physics.Raycast(origin + Vector3.left  * sideOffset, Vector3.down, rayDistance, groundLayer);
+        bool hitRight  = Physics.Raycast(origin + Vector3.right * sideOffset, Vector3.down, rayDistance, groundLayer);
 
         isGrounded = hitCenter || hitLeft || hitRight;
 
         // Debug visual en el editor
-        Debug.DrawRay(origin, Vector3.down * rayDistance, hitCenter ? Color.green : Color.red);
-        Debug.DrawRay(origin + Vector3.left * sideOffset, Vector3.down * rayDistance, hitLeft ? Color.green : Color.red);
-        Debug.DrawRay(origin + Vector3.right * sideOffset, Vector3.down * rayDistance, hitRight ? Color.green : Color.red);
+        Debug.DrawRay(origin,                               Vector3.down * rayDistance, hitCenter ? Color.green : Color.red);
+        Debug.DrawRay(origin + Vector3.left  * sideOffset, Vector3.down * rayDistance, hitLeft   ? Color.green : Color.red);
+        Debug.DrawRay(origin + Vector3.right * sideOffset, Vector3.down * rayDistance, hitRight  ? Color.green : Color.red);
     }
 
     // ── Animations ────────────────────────────────────────────────────────────

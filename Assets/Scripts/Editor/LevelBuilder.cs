@@ -197,14 +197,20 @@ namespace VeinsOfMalice.Editor
             // Helper to set dummy layer and add collider if missing
             void SetupDummy(GameObject dummyObj)
             {
-                // Set layer to "Enemy" if it exists
+                // Set layer to "Enemy" if it exists; NEVER use Ground layer on characters
                 int enemyLayer = LayerMask.NameToLayer("Enemy");
-                if (enemyLayer != -1) dummyObj.layer = enemyLayer;
+                if (enemyLayer != -1)
+                    dummyObj.layer = enemyLayer;
 
-                // Ensure it has a collider
-                if (dummyObj.GetComponent<Collider>() == null)
+                // Only add a collider if the dummy (and ALL its children) have none —
+                // avoids double-colliders that confuse the player's ground raycasts.
+                Collider[] existingColliders = dummyObj.GetComponentsInChildren<Collider>();
+                if (existingColliders.Length == 0)
                 {
-                    dummyObj.AddComponent<SphereCollider>();
+                    CapsuleCollider cap = dummyObj.AddComponent<CapsuleCollider>();
+                    cap.height = 2f;
+                    cap.radius = 0.4f;
+                    cap.center = new Vector3(0, 1f, 0);
                 }
             }
 
@@ -283,8 +289,12 @@ namespace VeinsOfMalice.Editor
             SceneView.FrameLastActiveSceneView();
             
             Debug.Log("<color=green>[Forest Builder]</color> A beautiful 2.5D Fantasy Forest Combat Scene has been generated successfully! Ready for combat testing.");
+        }
 
-    treeGroup.transform.SetParent(parent);
+        private static void CreateTree(Transform parent, string name, Vector3 pos)
+        {
+            GameObject treeGroup = new GameObject(name);
+            treeGroup.transform.SetParent(parent);
             treeGroup.transform.position = pos;
 
             // Trunk
